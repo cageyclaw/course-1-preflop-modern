@@ -404,5 +404,478 @@
         "explanation": "Focused practice lets you target one spot with feedback."
       }
     ]
+  },
+  "D1": {
+    "activityId": "D1",
+    "activityType": "drill",
+    "drillId": "D1",
+    "title": "RFI Decision Lab",
+    "description": "Open or fold decisions from multiple positions.",
+    "questionCount": 8,
+    "allowRetake": true,
+    "reviewMode": "afterFinish",
+    "navigationMode": "onePerPage",
+    "scoringMode": "accuracy",
+    "questions": [
+      {
+        "id": "D1-Q1",
+        "stem": "UTG: A♠ Q♦ — Open or Fold?",
+        "choices": [
+          { "id": "open", "label": "Open" },
+          { "id": "fold", "label": "Fold" }
+        ],
+        "correctChoiceId": "open",
+        "explanation": "Strong broadway is a default open from UTG."
+      },
+      {
+        "id": "D1-Q2",
+        "stem": "UTG: A♦ 9♠ — Open or Fold?",
+        "choices": [
+          { "id": "open", "label": "Open" },
+          { "id": "fold", "label": "Fold" }
+        ],
+        "correctChoiceId": "fold",
+        "explanation": "Offsuit weak ace is dominated too often from EP."
+      },
+      {
+        "id": "D1-Q3",
+        "stem": "HJ: K♦ T♦ — Open or Fold?",
+        "choices": [
+          { "id": "open", "label": "Open" },
+          { "id": "fold", "label": "Fold" }
+        ],
+        "correctChoiceId": "open",
+        "explanation": "Suited broadway is playable in HJ, but fold to 3-bets if pressured."
+      },
+      {
+        "id": "D1-Q4",
+        "stem": "HJ: Q♠ T♣ — Open or Fold?",
+        "choices": [
+          { "id": "open", "label": "Open" },
+          { "id": "fold", "label": "Fold" }
+        ],
+        "correctChoiceId": "fold",
+        "explanation": "Offsuit QTo is too dominated in earlier positions."
+      },
+      {
+        "id": "D1-Q5",
+        "stem": "CO: A♠ 4♦ — Open or Fold?",
+        "choices": [
+          { "id": "open", "label": "Open" },
+          { "id": "fold", "label": "Fold" }
+        ],
+        "correctChoiceId": "fold",
+        "explanation": "Weak offsuit aces are dominated and reverse-implied in late position."
+      },
+      {
+        "id": "D1-Q6",
+        "stem": "BTN: J♦ T♦ — Open or Fold?",
+        "choices": [
+          { "id": "open", "label": "Open" },
+          { "id": "fold", "label": "Fold" }
+        ],
+        "correctChoiceId": "open",
+        "explanation": "Strong suited broadway is a clear button open."
+      },
+      {
+        "id": "D1-Q7",
+        "stem": "SB (first-in): A♦ Q♣ — Open or Fold?",
+        "choices": [
+          { "id": "open", "label": "Open" },
+          { "id": "fold", "label": "Fold" }
+        ],
+        "correctChoiceId": "open",
+        "explanation": "Strong AQ is still an open from the small blind."
+      },
+      {
+        "id": "D1-Q8",
+        "stem": "BTN: 9♦ 5♠ — Open or Fold?",
+        "choices": [
+          { "id": "open", "label": "Open" },
+          { "id": "fold", "label": "Fold" }
+        ],
+        "correctChoiceId": "fold",
+        "explanation": "Offsuit trash still under-realizes even on the button."
+      }
+    ]
+  },
+  "D2": {
+    "activityId": "D2",
+    "activityType": "drill",
+    "drillId": "D2",
+    "title": "3-Bet or Defend Lab",
+    "description": "Choose between 3-bet, call, or fold versus opens.",
+    "questionCount": 8,
+    "allowRetake": true,
+    "reviewMode": "afterFinish",
+    "navigationMode": "onePerPage",
+    "scoringMode": "accuracy",
+    "questions": [
+      {
+        "id": "D2-Q1",
+        "stem": "BTN vs CO open: A♠ Q♠ — Best action?",
+        "choices": [
+          { "id": "3bet", "label": "3-bet" },
+          { "id": "call", "label": "Call" },
+          { "id": "fold", "label": "Fold" }
+        ],
+        "correctChoiceId": "3bet",
+        "explanation": "AQ suited is a value 3-bet against a CO open."
+      },
+      {
+        "id": "D2-Q2",
+        "stem": "BB vs BTN open: K♦ J♦ — Best action?",
+        "choices": [
+          { "id": "3bet", "label": "3-bet" },
+          { "id": "call", "label": "Call" },
+          { "id": "fold", "label": "Fold" }
+        ],
+        "correctChoiceId": "call",
+        "explanation": "KJ suited defends well in the BB; mixing call is standard."
+      },
+      {
+        "id": "D2-Q3",
+        "stem": "SB vs BTN open: A♥ 5♥ — Best action?",
+        "choices": [
+          { "id": "3bet", "label": "3-bet" },
+          { "id": "call", "label": "Call" },
+          { "id": "fold", "label": "Fold" }
+        ],
+        "correctChoiceId": "3bet",
+        "explanation": "In the SB, prefer 3-bet or fold rather than flatting."
+      },
+      {
+        "id": "D2-Q4",
+        "stem": "BB vs CO open: Q♠ J♠ — Best action?",
+        "choices": [
+          { "id": "3bet", "label": "3-bet" },
+          { "id": "call", "label": "Call" },
+          { "id": "fold", "label": "Fold" }
+        ],
+        "correctChoiceId": "call",
+        "explanation": "QJ suited plays well as a defend without inflating the pot."
+      },
+      {
+        "id": "D2-Q5",
+        "stem": "BTN vs HJ open: 8♠ 8♦ — Best action?",
+        "choices": [
+          { "id": "3bet", "label": "3-bet" },
+          { "id": "call", "label": "Call" },
+          { "id": "fold", "label": "Fold" }
+        ],
+        "correctChoiceId": "call",
+        "explanation": "Pairs are fine calls in position; 3-bet sometimes but call is standard."
+      },
+      {
+        "id": "D2-Q6",
+        "stem": "BB vs BTN open: A♦ 9♣ — Best action?",
+        "choices": [
+          { "id": "3bet", "label": "3-bet" },
+          { "id": "call", "label": "Call" },
+          { "id": "fold", "label": "Fold" }
+        ],
+        "correctChoiceId": "fold",
+        "explanation": "Weak offsuit aces are dominated and should be folded in the BB."
+      },
+      {
+        "id": "D2-Q7",
+        "stem": "SB vs CO open: K♣ Q♦ — Best action?",
+        "choices": [
+          { "id": "3bet", "label": "3-bet" },
+          { "id": "call", "label": "Call" },
+          { "id": "fold", "label": "Fold" }
+        ],
+        "correctChoiceId": "3bet",
+        "explanation": "Strong broadway is a value 3-bet from the SB."
+      },
+      {
+        "id": "D2-Q8",
+        "stem": "BTN vs UTG open: A♣ J♦ — Best action?",
+        "choices": [
+          { "id": "3bet", "label": "3-bet" },
+          { "id": "call", "label": "Call" },
+          { "id": "fold", "label": "Fold" }
+        ],
+        "correctChoiceId": "fold",
+        "explanation": "AJ offsuit is often dominated against a tight UTG range."
+      }
+    ]
+  },
+  "D3": {
+    "activityId": "D3",
+    "activityType": "drill",
+    "drillId": "D3",
+    "title": "BB Defense Speed Drill",
+    "description": "Rapid-fire BB defense decisions. Answer fast and move on.",
+    "questionCount": 10,
+    "allowRetake": true,
+    "reviewMode": "afterFinish",
+    "navigationMode": "autoAdvance",
+    "scoringMode": "accuracyWithTiming",
+    "timer": {
+      "enabled": true,
+      "mode": "wholeActivity",
+      "durationSeconds": 60,
+      "autoSubmitOnExpire": true
+    },
+    "questions": [
+      {
+        "id": "D3-Q1",
+        "stem": "BB vs BTN open: K♠ Q♠ — Best action?",
+        "choices": [
+          { "id": "3bet", "label": "3-bet" },
+          { "id": "call", "label": "Call" },
+          { "id": "fold", "label": "Fold" }
+        ],
+        "correctChoiceId": "3bet",
+        "explanation": "Strong suited broadway is a value 3-bet versus BTN."
+      },
+      {
+        "id": "D3-Q2",
+        "stem": "BB vs BTN open: Q♦ J♦ — Best action?",
+        "choices": [
+          { "id": "3bet", "label": "3-bet" },
+          { "id": "call", "label": "Call" },
+          { "id": "fold", "label": "Fold" }
+        ],
+        "correctChoiceId": "call",
+        "explanation": "QJ suited is a solid call in the BB versus BTN."
+      },
+      {
+        "id": "D3-Q3",
+        "stem": "BB vs BTN open: A♣ 8♦ — Best action?",
+        "choices": [
+          { "id": "3bet", "label": "3-bet" },
+          { "id": "call", "label": "Call" },
+          { "id": "fold", "label": "Fold" }
+        ],
+        "correctChoiceId": "fold",
+        "explanation": "Weak offsuit aces are dominated even with pot odds."
+      },
+      {
+        "id": "D3-Q4",
+        "stem": "BB vs BTN open: 9♣ 8♣ — Best action?",
+        "choices": [
+          { "id": "3bet", "label": "3-bet" },
+          { "id": "call", "label": "Call" },
+          { "id": "fold", "label": "Fold" }
+        ],
+        "correctChoiceId": "call",
+        "explanation": "Suited connectors are defendable versus BTN."
+      },
+      {
+        "id": "D3-Q5",
+        "stem": "BB vs CO open: A♠ Q♦ — Best action?",
+        "choices": [
+          { "id": "3bet", "label": "3-bet" },
+          { "id": "call", "label": "Call" },
+          { "id": "fold", "label": "Fold" }
+        ],
+        "correctChoiceId": "3bet",
+        "explanation": "AQ is a clear value 3-bet versus CO."
+      },
+      {
+        "id": "D3-Q6",
+        "stem": "BB vs CO open: K♦ T♦ — Best action?",
+        "choices": [
+          { "id": "3bet", "label": "3-bet" },
+          { "id": "call", "label": "Call" },
+          { "id": "fold", "label": "Fold" }
+        ],
+        "correctChoiceId": "call",
+        "explanation": "KTs is a defendable call versus CO."
+      },
+      {
+        "id": "D3-Q7",
+        "stem": "BB vs CO open: J♠ 7♦ — Best action?",
+        "choices": [
+          { "id": "3bet", "label": "3-bet" },
+          { "id": "call", "label": "Call" },
+          { "id": "fold", "label": "Fold" }
+        ],
+        "correctChoiceId": "fold",
+        "explanation": "Dominated offsuit broadways should be folded versus CO."
+      },
+      {
+        "id": "D3-Q8",
+        "stem": "BB vs BTN open: 7♦ 2♣ — Best action?",
+        "choices": [
+          { "id": "3bet", "label": "3-bet" },
+          { "id": "call", "label": "Call" },
+          { "id": "fold", "label": "Fold" }
+        ],
+        "correctChoiceId": "fold",
+        "explanation": "Trash offsuit hands still fold even with pot odds."
+      },
+      {
+        "id": "D3-Q9",
+        "stem": "BB vs BTN open: A♦ J♣ — Best action?",
+        "choices": [
+          { "id": "3bet", "label": "3-bet" },
+          { "id": "call", "label": "Call" },
+          { "id": "fold", "label": "Fold" }
+        ],
+        "correctChoiceId": "3bet",
+        "explanation": "AJ is strong enough to 3-bet for value versus BTN."
+      },
+      {
+        "id": "D3-Q10",
+        "stem": "BB vs CO open: 6♠ 6♥ — Best action?",
+        "choices": [
+          { "id": "3bet", "label": "3-bet" },
+          { "id": "call", "label": "Call" },
+          { "id": "fold", "label": "Fold" }
+        ],
+        "correctChoiceId": "call",
+        "explanation": "Small pairs are standard calls for set value."
+      }
+    ]
+  },
+  "D4": {
+    "activityId": "D4",
+    "activityType": "drill",
+    "drillId": "D4",
+    "title": "Final Assessment",
+    "description": "Cumulative preflop assessment across positions and pressure spots.",
+    "questionCount": 12,
+    "allowRetake": true,
+    "reviewMode": "afterFinish",
+    "navigationMode": "onePerPage",
+    "scoringMode": "bandedAssessment",
+    "passingScorePercent": 70,
+    "resultBands": [
+      { "key": "mastery", "minPercent": 85, "maxPercent": 100, "label": "Excellent / Mastery" },
+      { "key": "pass", "minPercent": 70, "maxPercent": 84, "label": "Pass / Competent" },
+      { "key": "review", "minPercent": 0, "maxPercent": 69, "label": "Needs Review" }
+    ],
+    "questions": [
+      {
+        "id": "D4-Q1",
+        "stem": "UTG: K♠ Q♠ — Open or Fold?",
+        "choices": [
+          { "id": "open", "label": "Open" },
+          { "id": "fold", "label": "Fold" }
+        ],
+        "correctChoiceId": "open",
+        "explanation": "KQs is a solid UTG open in the baseline."
+      },
+      {
+        "id": "D4-Q2",
+        "stem": "UTG: A♦ 8♠ — Open or Fold?",
+        "choices": [
+          { "id": "open", "label": "Open" },
+          { "id": "fold", "label": "Fold" }
+        ],
+        "correctChoiceId": "fold",
+        "explanation": "Offsuit weak aces should fold from early position."
+      },
+      {
+        "id": "D4-Q3",
+        "stem": "BTN vs CO open: A♣ Q♦ — Best action?",
+        "choices": [
+          { "id": "3bet", "label": "3-bet" },
+          { "id": "call", "label": "Call" },
+          { "id": "fold", "label": "Fold" }
+        ],
+        "correctChoiceId": "3bet",
+        "explanation": "AQ is a value 3-bet against CO."
+      },
+      {
+        "id": "D4-Q4",
+        "stem": "BB vs BTN open: J♠ 9♠ — Best action?",
+        "choices": [
+          { "id": "3bet", "label": "3-bet" },
+          { "id": "call", "label": "Call" },
+          { "id": "fold", "label": "Fold" }
+        ],
+        "correctChoiceId": "call",
+        "explanation": "J9 suited is a defendable BB call."
+      },
+      {
+        "id": "D4-Q5",
+        "stem": "SB vs BTN open: A♠ K♦ — Best action?",
+        "choices": [
+          { "id": "3bet", "label": "3-bet" },
+          { "id": "call", "label": "Call" },
+          { "id": "fold", "label": "Fold" }
+        ],
+        "correctChoiceId": "3bet",
+        "explanation": "AK is a premium value 3-bet from the SB."
+      },
+      {
+        "id": "D4-Q6",
+        "stem": "HJ: 9♣ 8♣ — Open or Fold?",
+        "choices": [
+          { "id": "open", "label": "Open" },
+          { "id": "fold", "label": "Fold" }
+        ],
+        "correctChoiceId": "open",
+        "explanation": "Suited connectors can open from HJ in the baseline."
+      },
+      {
+        "id": "D4-Q7",
+        "stem": "BB vs CO open: A♠ Q♥ — Best action?",
+        "choices": [
+          { "id": "3bet", "label": "3-bet" },
+          { "id": "call", "label": "Call" },
+          { "id": "fold", "label": "Fold" }
+        ],
+        "correctChoiceId": "3bet",
+        "explanation": "AQ is a value 3-bet versus CO."
+      },
+      {
+        "id": "D4-Q8",
+        "stem": "BTN vs UTG open: A♣ J♦ — Best action?",
+        "choices": [
+          { "id": "3bet", "label": "3-bet" },
+          { "id": "call", "label": "Call" },
+          { "id": "fold", "label": "Fold" }
+        ],
+        "correctChoiceId": "fold",
+        "explanation": "AJ offsuit is often dominated against UTG."
+      },
+      {
+        "id": "D4-Q9",
+        "stem": "SB first-in: Q♦ 9♦ — Open or Fold?",
+        "choices": [
+          { "id": "open", "label": "Open" },
+          { "id": "fold", "label": "Fold" }
+        ],
+        "correctChoiceId": "fold",
+        "explanation": "SB ranges stay tighter; Q9 suited is a fold in the baseline."
+      },
+      {
+        "id": "D4-Q10",
+        "stem": "BTN: J♦ T♦ — Open or Fold?",
+        "choices": [
+          { "id": "open", "label": "Open" },
+          { "id": "fold", "label": "Fold" }
+        ],
+        "correctChoiceId": "open",
+        "explanation": "Strong suited broadways open on the button."
+      },
+      {
+        "id": "D4-Q11",
+        "stem": "BB vs BTN open: A♣ 2♦ — Best action?",
+        "choices": [
+          { "id": "3bet", "label": "3-bet" },
+          { "id": "call", "label": "Call" },
+          { "id": "fold", "label": "Fold" }
+        ],
+        "correctChoiceId": "fold",
+        "explanation": "Weak offsuit aces are folds in the BB."
+      },
+      {
+        "id": "D4-Q12",
+        "stem": "BB vs CO open: J♦ 7♦ — Best action?",
+        "choices": [
+          { "id": "3bet", "label": "3-bet" },
+          { "id": "call", "label": "Call" },
+          { "id": "fold", "label": "Fold" }
+        ],
+        "correctChoiceId": "fold",
+        "explanation": "Dominated offsuit broadways should be folded versus CO."
+      }
+    ]
   }
 }

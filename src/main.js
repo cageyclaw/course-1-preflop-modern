@@ -552,8 +552,18 @@ const renderDrillsIndex = () => {
       <div class="grid two">
         ${drills
           .map((drill) => {
-            const complete = progress.completed[drill.id];
-            const score = progress.scores[drill.id] || '';
+            const activityProgress = progress.activities?.[drill.id] || {};
+            const complete = activityProgress.completed;
+            const bestScore = activityProgress.bestScore;
+            const latestScore = activityProgress.latestScore;
+            const passed = activityProgress.passed;
+            const statusLabel = drill.id === 'D4' && complete
+              ? passed
+                ? 'Passed'
+                : 'Completed'
+              : complete
+                ? 'Complete'
+                : 'Pending';
             return `
             <div class="card">
               <div class="card-header">
@@ -561,23 +571,20 @@ const renderDrillsIndex = () => {
                   <h3>${drill.id} · ${drill.title}</h3>
                   <p>${drill.subtitle}</p>
                 </div>
-                <span class="status ${complete ? 'complete' : ''}">${complete ? 'Complete' : 'Pending'}</span>
+                <span class="status ${complete ? 'complete' : ''}">${statusLabel}</span>
               </div>
               <p>${drill.summary}</p>
               <div class="card-meta">
                 <span>${drill.duration}</span>
                 <span>${drill.points} pts</span>
-              </div>
-              <div class="score-input">
-                <label>Score</label>
-                <input type="number" min="0" max="${drill.points}" value="${score}" data-score-input="${drill.id}" />
-                <button class="btn ghost" data-score-save="${drill.id}">Save</button>
+                ${bestScore !== undefined ? `<span>Best: ${bestScore}%</span>` : ''}
+                ${latestScore !== undefined ? `<span>Latest: ${latestScore}%</span>` : ''}
               </div>
               <div class="card-actions">
                 <a class="btn ghost" href="#/course/drills/${drill.slug}">Open Drill</a>
-                <button class="btn ${complete ? 'ghost' : 'primary'}" data-complete="${drill.id}">
-                  ${complete ? 'Mark Incomplete' : 'Mark Complete'}
-                </button>
+                <a class="btn ${complete ? 'ghost' : 'primary'}" href="#/course/drills/${drill.slug}">
+                  ${complete ? 'Review Drill' : 'Run Drill'}
+                </a>
               </div>
             </div>
           `;
@@ -915,103 +922,359 @@ const renderQuizResult = (chapter, quiz, result, prev, next, completed, attemptC
   `;
 };
 
-const renderDrillPage = (drill) => {
+const getResultBand = (scorePercent, bands = []) => {
+  return bands.find((band) => scorePercent >= band.minPercent && scorePercent <= band.maxPercent) || null;
+};
+
+const renderDrillQuiz = (drill) => {
   const progress = loadProgress();
-  const htmlContent = markdownToHtml(contentMap[drill.id]);
-  const complete = progress.completed[drill.id];
-  const score = progress.scores[drill.id] || '';
+  const drillQuiz = quizData[drill.id];
+
+  if (!drillQuiz) {
+    return `
+      <section class="section">
+        <div class="section-header">
+          <p class="error">Drill quiz not found for ${drill.id}</p>
+          <a class="btn ghost" href="#/course/drills">Back to Drills</a>
+        </div>
+      </section>
+    `;
+  }
+
+  const activityProgress = progress.activities?.[drill.id] || {};
+  const bestScore = activityProgress.bestScore;
+  const attemptCount = activityProgress.attemptCount || 0;
+  const completed = activityProgress.completed || false;
+  const passed = activityProgress.passed;
+
   const index = drills.findIndex((item) => item.id === drill.id);
   const prev = index > 0 ? drills[index - 1] : null;
   const next = index < drills.length - 1 ? drills[index + 1] : null;
 
+  const sessionKey = `drill_result_${drill.id}`;
+  const resultData = sessionStorage.getItem(sessionKey);
+
+  if (resultData) {
+    const result = JSON.parse(resultData);
+    return renderDrillResult(drill, drillQuiz, result, prev, next, completed, attemptCount, bestScore, passed);
+  }
+
+  return renderDrillQuestions(drill, drillQuiz, prev, next, completed, attemptCount, bestScore, passed);
+};
+
+const renderDrillQuestions = (drill, quiz, prev, next, completed, attemptCount, bestScore, passed) => {
+  const navMode = quiz.navigationMode || 'onePerPage';
+  const questionCount = quiz.questions.length;
+  const timer = quiz.timer;
+  const storedIndex = Number(sessionStorage.getItem(`drill_index_${drill.id}`));
+  const startIndex = Number.isFinite(storedIndex)
+    ? Math.min(Math.max(storedIndex, 0), questionCount - 1)
+    : 0;
+
   return `
-    <section class="lesson-hero">
-      <div>
+    <section class="section drill-section">
+      <div class="section-header">
         <p class="eyebrow">Drill ${drill.id}</p>
         <h1>${drill.title}</h1>
-        <p class="lead">${drill.subtitle}</p>
-        <div class="lesson-actions">
-          <button class="btn ${complete ? 'ghost' : 'primary'}" data-complete="${drill.id}">
-            ${complete ? 'Mark Incomplete' : 'Mark Complete'}
-          </button>
-          <a class="btn ghost" href="#/course/drills">Back to Drills</a>
+        <p>${drill.subtitle}</p>
+      </div>
+
+      <div class="quiz-info">
+        <div class="quiz-meta">
+          <span><strong>Questions:</strong> ${questionCount}</span>
+          <span><strong>Mode:</strong> ${navMode === 'autoAdvance' ? 'Auto-advance' : 'Scenario drill'}</span>
+          ${quiz.scoringMode === 'bandedAssessment'
+            ? `<span><strong>Pass band:</strong> ${quiz.passingScorePercent}%+</span>`
+            : '<span><strong>Score:</strong> Accuracy</span>'}
+          <span><strong>Attempts:</strong> ${attemptCount}</span>
+          ${bestScore !== null && bestScore !== undefined ? `<span><strong>Best:</strong> ${bestScore}%</span>` : ''}
+          ${passed !== undefined && passed !== null ? `<span><strong>Status:</strong> ${passed ? 'Passed' : 'Not passed'}</span>` : ''}
         </div>
       </div>
-      <div class="lesson-panel">
-        <div class="panel-header">Drill Status</div>
-        <div class="status-row">
-          <span>Status</span>
-          <span>${complete ? 'Complete' : 'In progress'}</span>
-        </div>
-        <div class="status-row">
-          <span>Duration</span>
-          <span>${drill.duration}</span>
-        </div>
-        <div class="status-row">
-          <span>Focus</span>
-          <span>${drill.summary}</span>
-        </div>
-        <div class="score-input full">
-          <label>Record drill score</label>
-          <input type="number" min="0" max="${drill.points}" value="${score}" data-score-input="${drill.id}" />
-          <button class="btn ghost" data-score-save="${drill.id}">Save Score</button>
-        </div>
+
+      <div class="drill-progress" data-drill-progress>
+        <span>Question <strong data-drill-current>${startIndex + 1}</strong> of ${questionCount}</span>
+        ${timer?.enabled ? `<span class="drill-timer" data-drill-timer>Time left: ${timer.durationSeconds}s</span>` : ''}
       </div>
-    </section>
-    <section class="lesson-grid">
-      <aside class="lesson-sidebar">
-        <div class="card">
-          <h3>Drill cadence</h3>
-          <p>Repeat until your response is automatic.</p>
-          <ul>
-            ${prev ? `<li><a class="inline-link" href="#/course/drills/${prev.slug}">← ${prev.id} · ${prev.title}</a></li>` : '<li>Start of drills</li>'}
-            <li><strong>Current:</strong> ${drill.id} · ${drill.title}</li>
-            ${next ? `<li><a class="inline-link" href="#/course/drills/${next.slug}">${next.id} · ${next.title} →</a></li>` : '<li>Final drill</li>'}
-          </ul>
+
+      <form
+        id="drill-form"
+        data-quiz-id="${quiz.activityId}"
+        data-nav-mode="${navMode}"
+        data-question-count="${questionCount}"
+        data-start-index="${startIndex}"
+        ${timer?.enabled ? `data-timer-seconds="${timer.durationSeconds}" data-auto-submit="${timer.autoSubmitOnExpire ? 'true' : 'false'}"` : ''}
+      >
+        <div class="quiz-questions">
+          ${quiz.questions.map((q, idx) => `
+            <div class="question-card ${navMode === 'allAtOnce' ? '' : 'is-hidden'}" data-question-id="${q.id}" data-question-index="${idx}">
+              <div class="question-header">
+                <span class="question-number">Question ${idx + 1} of ${questionCount}</span>
+                ${q.scenario ? `<div class="question-scenario">${q.scenario}</div>` : ''}
+              </div>
+              <div class="question-stem">${q.stem}</div>
+              <div class="choices">
+                ${q.choices.map(choice => `
+                  <label class="choice-item">
+                    <input type="radio" name="${q.id}" value="${choice.id}" />
+                    <span class="choice-label">${choice.label}</span>
+                  </label>
+                `).join('')}
+              </div>
+            </div>
+          `).join('')}
         </div>
-        <div class="card">
-          <h3>Keep the chain</h3>
-          <p>Log your score every run to track climb rate.</p>
-          <a class="btn ghost" href="#/course/progress">View Progress</a>
+
+        <div class="quiz-submit drill-submit">
+          ${navMode === 'onePerPage' ? '<button type="button" class="btn ghost" data-drill-prev>Previous</button>' : ''}
+          ${navMode === 'onePerPage' ? '<button type="button" class="btn ghost" data-drill-next>Next</button>' : ''}
+          <button type="submit" class="btn primary">Finish Drill</button>
         </div>
-      </aside>
-      <article class="lesson-content">
-        ${htmlContent}
-      </article>
+      </form>
+
+      <div class="quiz-nav">
+        <a class="btn ghost" href="#/course/drills">Back to Drills</a>
+        ${prev ? `<a class="btn ghost" href="#/course/drills/${prev.slug}">Previous: ${prev.id}</a>` : ''}
+        ${next ? `<a class="btn ghost" href="#/course/drills/${next.slug}">Next: ${next.id}</a>` : '<a class="btn ghost" href="#/course/progress">View Progress</a>'}
+      </div>
     </section>
   `;
 };
 
+const renderDrillResult = (drill, quiz, result, prev, next, completed, attemptCount, bestScore, passed) => {
+  const scorePercent = result.scorePercent;
+  const correctCount = result.correctCount;
+  const questionCount = result.questionCount;
+  const resultBand = result.resultBand || getResultBand(scorePercent, quiz.resultBands || []);
+  const metrics = result.metrics || {};
+
+  return `
+    <section class="section">
+      <div class="section-header">
+        <p class="eyebrow">Drill ${drill.id} · Complete</p>
+        <h1>${quiz.title} Result</h1>
+      </div>
+
+      <div class="quiz-result">
+        <div class="result-score ${scorePercent >= 75 ? 'good' : scorePercent >= 50 ? 'okay' : 'needs-work'}">
+          <div class="score-number">${scorePercent}%</div>
+          <div class="score-label">${correctCount}/${questionCount} correct</div>
+        </div>
+
+        <div class="result-stats">
+          <div class="stat">
+            <span class="stat-label">Status</span>
+            <span class="stat-value ${completed ? 'complete' : ''}">${completed ? 'Completed' : 'First attempt'}</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Attempts</span>
+            <span class="stat-value">${attemptCount}</span>
+          </div>
+          ${bestScore !== null && bestScore !== undefined ? `
+          <div class="stat">
+            <span class="stat-label">Best Score</span>
+            <span class="stat-value">${bestScore}%</span>
+          </div>
+          ` : ''}
+          ${quiz.scoringMode === 'bandedAssessment' && resultBand ? `
+          <div class="stat">
+            <span class="stat-label">Band</span>
+            <span class="stat-value">${resultBand.label}</span>
+          </div>
+          ` : ''}
+          ${quiz.scoringMode === 'bandedAssessment' ? `
+          <div class="stat">
+            <span class="stat-label">Pass</span>
+            <span class="stat-value ${passed ? 'complete' : ''}">${passed ? 'Yes' : 'No'}</span>
+          </div>
+          ` : ''}
+        </div>
+      </div>
+
+      ${quiz.scoringMode === 'accuracyWithTiming' && metrics.totalElapsedMs ? `
+        <div class="quiz-meta timing-meta">
+          <span><strong>Total time:</strong> ${(metrics.totalElapsedMs / 1000).toFixed(1)}s</span>
+          ${metrics.averageResponseMs ? `<span><strong>Avg response:</strong> ${(metrics.averageResponseMs / 1000).toFixed(1)}s</span>` : ''}
+        </div>
+      ` : ''}
+
+      <div class="quiz-review">
+        <h2>Review Your Answers</h2>
+        ${quiz.questions.map((q, idx) => {
+          const userAnswer = result.answers[q.id];
+          const isCorrect = userAnswer === q.correctChoiceId;
+          return `
+            <div class="review-card ${isCorrect ? 'correct' : 'incorrect'}">
+              <div class="review-header">
+                <span class="review-number">Question ${idx + 1}</span>
+                <span class="review-status ${isCorrect ? 'correct' : 'incorrect'}">
+                  ${isCorrect ? '✓ Correct' : '✗ Incorrect'}
+                </span>
+              </div>
+              <div class="review-stem">${q.stem}</div>
+              ${q.scenario ? `<div class="review-scenario">${q.scenario}</div>` : ''}
+              <div class="review-answers">
+                <div class="your-answer ${isCorrect ? 'correct' : 'incorrect'}">
+                  <strong>Your answer:</strong> ${q.choices.find(c => c.id === userAnswer)?.label || 'Not answered'}
+                </div>
+                ${!isCorrect ? `
+                  <div class="correct-answer">
+                    <strong>Correct answer:</strong> ${q.choices.find(c => c.id === q.correctChoiceId)?.label}
+                  </div>
+                ` : ''}
+              </div>
+              <div class="explanation">
+                <strong>Explanation:</strong> ${q.explanation}
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+
+      <div class="result-actions">
+        <button class="btn primary" data-retake-drill="${quiz.activityId}" data-drill="${drill.slug}">
+          Retry Drill
+        </button>
+        <a class="btn ghost" href="#/course/drills">Back to Drills</a>
+        ${next ? `<a class="btn primary" href="#/course/drills/${next.slug}">Next Drill: ${next.id}</a>` : '<a class="btn primary" href="#/course/progress">View Progress</a>'}
+        <a class="btn ghost" href="#/course/badges">View Badges</a>
+      </div>
+    </section>
+  `;
+};
+
+const renderDrillPage = (drill) => renderDrillQuiz(drill);
+
+let drillTimerInterval;
+
+const setDrillQuestionIndex = (form, index) => {
+  const total = Number(form.dataset.questionCount || 0);
+  const navMode = form.dataset.navMode || 'onePerPage';
+  const newIndex = Math.min(Math.max(index, 0), Math.max(total - 1, 0));
+  form.dataset.currentIndex = String(newIndex);
+  sessionStorage.setItem(`drill_index_${form.dataset.quizId}`, String(newIndex));
+
+  form.querySelectorAll('.question-card').forEach((card) => {
+    const cardIndex = Number(card.dataset.questionIndex || 0);
+    if (navMode === 'allAtOnce') {
+      card.classList.remove('is-hidden');
+      return;
+    }
+    card.classList.toggle('is-hidden', cardIndex !== newIndex);
+  });
+
+  const section = form.closest('.drill-section');
+  const currentLabel = section?.querySelector('[data-drill-current]');
+  if (currentLabel) currentLabel.textContent = String(newIndex + 1);
+
+  const prevButton = form.querySelector('[data-drill-prev]');
+  const nextButton = form.querySelector('[data-drill-next]');
+  if (prevButton) prevButton.disabled = newIndex === 0;
+  if (nextButton) nextButton.disabled = newIndex >= total - 1;
+};
+
+const initDrillNavigation = (form) => {
+  const navMode = form.dataset.navMode || 'onePerPage';
+  if (navMode === 'allAtOnce') {
+    return;
+  }
+
+  const startIndex = Number(form.dataset.startIndex || 0);
+  setDrillQuestionIndex(form, startIndex);
+
+  const prevButton = form.querySelector('[data-drill-prev]');
+  const nextButton = form.querySelector('[data-drill-next]');
+
+  if (prevButton) {
+    prevButton.addEventListener('click', () => {
+      const currentIndex = Number(form.dataset.currentIndex || 0);
+      setDrillQuestionIndex(form, currentIndex - 1);
+    });
+  }
+
+  if (nextButton) {
+    nextButton.addEventListener('click', () => {
+      const currentIndex = Number(form.dataset.currentIndex || 0);
+      const currentCard = form.querySelector(`.question-card[data-question-index="${currentIndex}"]`);
+      const currentQuestionId = currentCard?.dataset.questionId;
+      const selected = currentQuestionId
+        ? form.querySelector(`input[name="${currentQuestionId}"]:checked`)
+        : null;
+      if (!selected) {
+        alert('Choose an answer before moving on.');
+        return;
+      }
+      setDrillQuestionIndex(form, currentIndex + 1);
+    });
+  }
+
+  if (navMode === 'autoAdvance') {
+    form.addEventListener('change', (event) => {
+      if (event.target?.matches('input[type="radio"]')) {
+        const currentIndex = Number(form.dataset.currentIndex || 0);
+        const total = Number(form.dataset.questionCount || 0);
+        if (currentIndex >= total - 1) {
+          handleDrillSubmit(form, { completionReason: 'finished' });
+        } else {
+          setTimeout(() => setDrillQuestionIndex(form, currentIndex + 1), 150);
+        }
+      }
+    });
+  }
+};
+
+const initDrillTimer = (form) => {
+  const timerSeconds = Number(form.dataset.timerSeconds || 0);
+  if (!timerSeconds) return;
+
+  if (drillTimerInterval) {
+    clearInterval(drillTimerInterval);
+  }
+
+  const timerKey = `drill_timer_${form.dataset.quizId}`;
+  let startedAt = Number(sessionStorage.getItem(timerKey));
+  if (!startedAt) {
+    startedAt = Date.now();
+    sessionStorage.setItem(timerKey, String(startedAt));
+  }
+
+  const timerDisplay = form.closest('.drill-section')?.querySelector('[data-drill-timer]');
+  const autoSubmit = form.dataset.autoSubmit === 'true';
+
+  drillTimerInterval = setInterval(() => {
+    const elapsedMs = Date.now() - startedAt;
+    const remainingMs = Math.max(timerSeconds * 1000 - elapsedMs, 0);
+    if (timerDisplay) {
+      timerDisplay.textContent = `Time left: ${Math.ceil(remainingMs / 1000)}s`;
+    }
+    if (remainingMs <= 0) {
+      clearInterval(drillTimerInterval);
+      drillTimerInterval = null;
+      if (autoSubmit) {
+        handleDrillSubmit(form, { completionReason: 'timerExpired' });
+      }
+    }
+  }, 250);
+};
+
 const attachEventHandlers = () => {
-  const progress = loadProgress();
-
-  document.querySelectorAll('[data-complete]').forEach((button) => {
-    button.addEventListener('click', () => {
-      const id = button.dataset.complete;
-      progress.completed[id] = !progress.completed[id];
-      saveProgress(progress);
-      render();
-    });
-  });
-
-  document.querySelectorAll('[data-score-save]').forEach((button) => {
-    button.addEventListener('click', () => {
-      const id = button.dataset.scoreSave;
-      const input = document.querySelector(`[data-score-input="${id}"]`);
-      if (!input) return;
-      const value = Math.max(0, Number(input.value || 0));
-      progress.scores[id] = value;
-      saveProgress(progress);
-      render();
-    });
-  });
-
   // Quiz form submission
   const quizForm = document.getElementById('quiz-form');
   if (quizForm) {
     quizForm.addEventListener('submit', (e) => {
       e.preventDefault();
       handleQuizSubmit(quizForm);
+    });
+  }
+
+  // Drill form submission
+  const drillForm = document.getElementById('drill-form');
+  if (drillForm) {
+    initDrillNavigation(drillForm);
+    initDrillTimer(drillForm);
+    drillForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      handleDrillSubmit(drillForm, { completionReason: 'finished' });
     });
   }
 
@@ -1022,6 +1285,18 @@ const attachEventHandlers = () => {
       const chapterSlug = button.dataset.chapter;
       sessionStorage.removeItem(`quiz_result_${quizId}`);
       window.location.hash = `#/course/chapters/${chapterSlug}/quiz`;
+    });
+  });
+
+  // Retake drill buttons
+  document.querySelectorAll('[data-retake-drill]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const drillId = button.dataset.retakeDrill;
+      const drillSlug = button.dataset.drill;
+      sessionStorage.removeItem(`drill_result_${drillId}`);
+      sessionStorage.removeItem(`drill_index_${drillId}`);
+      sessionStorage.removeItem(`drill_timer_${drillId}`);
+      window.location.hash = `#/course/drills/${drillSlug}`;
     });
   });
 };
@@ -1165,6 +1440,166 @@ const handleQuizSubmit = (form) => {
   sessionStorage.setItem(`quiz_result_${quizId}`, JSON.stringify(resultData));
 
   // Re-render to show results
+  render();
+};
+
+const handleDrillSubmit = (form, { completionReason = 'finished' } = {}) => {
+  const drillId = form.dataset.quizId;
+  const quiz = quizData[drillId];
+  if (!quiz) return;
+
+  const allowIncomplete = completionReason === 'timerExpired';
+  const answers = {};
+  let allAnswered = true;
+
+  quiz.questions.forEach((q) => {
+    const selected = form.querySelector(`input[name="${q.id}"]:checked`);
+    if (selected) {
+      answers[q.id] = selected.value;
+    } else {
+      allAnswered = false;
+    }
+  });
+
+  if (!allAnswered && !allowIncomplete) {
+    alert('Please answer all questions before finishing the drill.');
+    return;
+  }
+
+  let correctCount = 0;
+  quiz.questions.forEach((q) => {
+    if (answers[q.id] === q.correctChoiceId) {
+      correctCount++;
+    }
+  });
+
+  const scorePercent = Math.round((correctCount / quiz.questions.length) * 100);
+  const submittedAt = new Date().toISOString();
+  const attemptId = `att_${drillId.toLowerCase()}_${Date.now()}`;
+
+  const progress = loadProgress();
+  if (!progress.activities) progress.activities = {};
+  if (!progress.attempts) progress.attempts = {};
+  if (!progress.completed) progress.completed = {};
+  if (!progress.scores) progress.scores = {};
+
+  const activityProgress = progress.activities[drillId] || {
+    activityId: drillId,
+    type: 'drill',
+    attemptCount: 0,
+    completed: false
+  };
+
+  const isFirstCompletion = !activityProgress.completed;
+  activityProgress.latestAttemptAt = submittedAt;
+  activityProgress.attemptCount = (activityProgress.attemptCount || 0) + 1;
+  activityProgress.latestScore = scorePercent;
+  activityProgress.latestAttemptId = attemptId;
+
+  if (!activityProgress.firstAttemptAt) {
+    activityProgress.firstAttemptAt = submittedAt;
+  }
+
+  if (isFirstCompletion) {
+    activityProgress.completed = true;
+    activityProgress.completedAt = submittedAt;
+  }
+
+  if (activityProgress.bestScore === undefined || scorePercent > activityProgress.bestScore) {
+    activityProgress.bestScore = scorePercent;
+    activityProgress.bestAttemptId = attemptId;
+  }
+
+  let resultBand = null;
+  let passed = null;
+  if (quiz.scoringMode === 'bandedAssessment') {
+    resultBand = getResultBand(scorePercent, quiz.resultBands || []);
+    passed = scorePercent >= (quiz.passingScorePercent ?? 0);
+    activityProgress.passed = passed;
+    if (passed && !activityProgress.passedAt) {
+      activityProgress.passedAt = submittedAt;
+    }
+  }
+
+  const timerKey = `drill_timer_${drillId}`;
+  const startedAt = Number(sessionStorage.getItem(timerKey));
+  const metrics = {};
+  if (startedAt) {
+    const totalElapsedMs = Date.now() - startedAt;
+    const answeredCount = Object.keys(answers).length || quiz.questions.length;
+    metrics.totalElapsedMs = totalElapsedMs;
+    metrics.averageResponseMs = Math.round(totalElapsedMs / answeredCount);
+  }
+
+  activityProgress.latestMetrics = Object.keys(metrics).length ? metrics : undefined;
+  if (activityProgress.bestScore === scorePercent && Object.keys(metrics).length) {
+    activityProgress.bestMetrics = metrics;
+  }
+
+  progress.activities[drillId] = activityProgress;
+  progress.completed[drillId] = true;
+
+  const drillMeta = drills.find((item) => item.id === drillId);
+  if (drillMeta) {
+    progress.scores[drillId] = Math.round((scorePercent / 100) * drillMeta.points);
+  }
+
+  const attemptRecord = {
+    attemptId,
+    activityId: drillId,
+    activityType: 'drill',
+    submittedAt,
+    completionReason,
+    answers,
+    correctCount,
+    questionCount: quiz.questions.length,
+    scorePercent,
+    passed,
+    resultBandKey: resultBand?.key,
+    metrics: Object.keys(metrics).length ? metrics : undefined
+  };
+
+  if (!progress.attempts[drillId]) {
+    progress.attempts[drillId] = [];
+  }
+  progress.attempts[drillId].push(attemptRecord);
+  if (progress.attempts[drillId].length > 5) {
+    progress.attempts[drillId] = progress.attempts[drillId].slice(-5);
+  }
+
+  const completedChapterQuizzes = Object.values(progress.activities)
+    .filter(a => a.type === 'chapterQuiz' && a.completed).length;
+  const completedDrills = Object.values(progress.activities)
+    .filter(a => a.type === 'drill' && a.completed).length;
+  const totalCompletableActivities = 11;
+
+  progress.summary = {
+    completedChapterQuizzes,
+    completedDrills,
+    totalCompletableActivities,
+    progressPercent: Math.round(((completedChapterQuizzes + completedDrills) / totalCompletableActivities) * 100),
+    lastActivityAt: submittedAt
+  };
+
+  saveProgress(progress);
+
+  const resultData = {
+    scorePercent,
+    correctCount,
+    questionCount: quiz.questions.length,
+    answers,
+    attemptId,
+    submittedAt,
+    passed,
+    resultBand,
+    metrics,
+    completionReason
+  };
+
+  sessionStorage.setItem(`drill_result_${drillId}`, JSON.stringify(resultData));
+  sessionStorage.removeItem(`drill_index_${drillId}`);
+  sessionStorage.removeItem(`drill_timer_${drillId}`);
+
   render();
 };
 
