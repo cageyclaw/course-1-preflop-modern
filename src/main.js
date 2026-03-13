@@ -1,609 +1,945 @@
 import './style.css';
 
-import a1Raw from './content/chapters/A1.md?raw';
-import a2Raw from './content/chapters/A2.md?raw';
-import a3Raw from './content/chapters/A3.md?raw';
-import a4Raw from './content/chapters/A4.md?raw';
-import a5Raw from './content/chapters/A5.md?raw';
-import a6Raw from './content/chapters/A6.md?raw';
-import a7Raw from './content/chapters/A7.md?raw';
-import d1Raw from './content/drills/D1-rfi-decision-lab.md?raw';
-import d2Raw from './content/drills/D2-3bet-or-defend-lab.md?raw';
-import d3Raw from './content/drills/D3-bb-defense-speed-drill.md?raw';
-import d4Raw from './content/drills/D4-final-assessment.md?raw';
+import A1 from './content/chapters/A1.md?raw';
+import A2 from './content/chapters/A2.md?raw';
+import A3 from './content/chapters/A3.md?raw';
+import A4 from './content/chapters/A4.md?raw';
+import A5 from './content/chapters/A5.md?raw';
+import A6 from './content/chapters/A6.md?raw';
+import A7 from './content/chapters/A7.md?raw';
+
+import D1 from './content/drills/D1-rfi-decision-lab.md?raw';
+import D2 from './content/drills/D2-3bet-or-defend-lab.md?raw';
+import D3 from './content/drills/D3-bb-defense-speed-drill.md?raw';
+import D4 from './content/drills/D4-final-assessment.md?raw';
 
 const app = document.querySelector('#app');
-const STORAGE_KEY = 'midnight-academy-progress';
-const baseUrl = import.meta.env.BASE_URL;
 
-const modules = [
+const chapters = [
   {
     id: 'A1',
-    kind: 'chapter',
-    label: 'Chapter A1',
-    theme: 'RFI baseline',
-    est: '12 min read',
-    points: 120,
-    accent: 'nebula',
-    summary: 'Build first-in discipline by seat, sizing, and bottom-of-range memory.',
-    raw: a1Raw,
+    slug: 'a1-rfi-fundamentals',
+    title: 'RFI Fundamentals',
+    subtitle: 'Opening ranges + position discipline',
+    duration: '35 min',
+    focus: 'Baseline opening system',
+    summary:
+      'Build a position-aware opening structure with consistent sizing and bottom-of-range discipline.',
   },
   {
     id: 'A2',
-    kind: 'chapter',
-    label: 'Chapter A2',
-    theme: '3-bet pressure',
-    est: '10 min read',
-    points: 120,
-    accent: 'lunar',
-    summary: 'Learn value versus bluff construction, linear versus polar ranges, and sizing rules.',
-    raw: a2Raw,
+    slug: 'a2-opening-ranges-and-position',
+    title: 'Opening Ranges and Position',
+    subtitle: 'Pressure, value, and range shape',
+    duration: '32 min',
+    focus: 'Aggression framework',
+    summary:
+      'Learn linear vs polar 3-bet ranges and the sizing system that keeps you unexploitable.',
   },
   {
     id: 'A3',
-    kind: 'chapter',
-    label: 'Chapter A3',
-    theme: 'Facing a 3-bet',
-    est: '9 min read',
-    points: 120,
-    accent: 'aurora',
-    summary: 'Defend selectively with suited, connected hands and cut dominated offsuit leaks.',
-    raw: a3Raw,
+    slug: 'a3-three-betting-and-facing-pressure',
+    title: 'Three-Betting and Facing Pressure',
+    subtitle: 'Defend with structure, not vibes',
+    duration: '30 min',
+    focus: 'Defense buckets',
+    summary:
+      'Fold, call, or 4-bet with clear buckets and avoid dominated offsuit traps.',
   },
   {
     id: 'A4',
-    kind: 'chapter',
-    label: 'Chapter A4',
-    theme: 'Blind defense',
-    est: '9 min read',
-    points: 120,
-    accent: 'nebula',
-    summary: 'Use pot odds with discipline, especially when equity realization gets ugly multiway.',
-    raw: a4Raw,
+    slug: 'a4-blind-defense-foundations',
+    title: 'Blind Defense Foundations',
+    subtitle: 'Pot odds vs equity realization',
+    duration: '28 min',
+    focus: 'SB/BB protection',
+    summary:
+      'Defend with playability in mind and stop bleeding from the blinds.',
   },
   {
     id: 'A5',
-    kind: 'chapter',
-    label: 'Chapter A5',
-    theme: 'ISO raising',
-    est: '8 min read',
-    points: 120,
-    accent: 'lunar',
-    summary: 'Punish limpers with deliberate sizing and tighter-than-RFI ranges.',
-    raw: a5Raw,
+    slug: 'a5-isolation-and-punish-spots',
+    title: 'Isolation and Punish Spots',
+    subtitle: 'Punish limpers, avoid crowds',
+    duration: '26 min',
+    focus: 'ISO sizing & ranges',
+    summary:
+      'Use a disciplined sizing ladder to isolate weak players and control pot geometry.',
   },
   {
     id: 'A6',
-    kind: 'chapter',
-    label: 'Chapter A6',
-    theme: 'Stack depth',
-    est: '8 min read',
-    points: 120,
-    accent: 'aurora',
-    summary: 'Adjust hand class value and commitment thresholds from 25bb to 150bb.',
-    raw: a6Raw,
+    slug: 'a6-population-exploits-and-adjustments',
+    title: 'Population Exploits and Adjustments',
+    subtitle: 'Shallow vs deep adjustments',
+    duration: '24 min',
+    focus: 'Depth-aware strategy',
+    summary:
+      'Learn how effective stacks change hand value and your commitment thresholds.',
   },
   {
     id: 'A7',
-    kind: 'chapter',
-    label: 'Chapter A7',
-    theme: '30-day plan',
-    est: '7 min read',
-    points: 120,
-    accent: 'nebula',
-    summary: 'Turn study into habit with a focused daily drill loop and weekly checkpoints.',
-    raw: a7Raw,
+    slug: 'a7-preflop-system-integration',
+    title: 'Preflop System Integration',
+    subtitle: 'Habits > heroics',
+    duration: '20 min',
+    focus: 'Training cadence',
+    summary:
+      'Build a repeatable daily plan that turns charts into instincts.',
   },
+];
+
+const drills = [
   {
     id: 'D1',
-    kind: 'drill',
-    label: 'Drill D1',
-    theme: 'RFI lab',
-    est: '30 hands',
-    points: 180,
-    accent: 'lunar',
-    summary: 'Rapid-fire open versus fold reps to stabilize early-position and button discipline.',
-    raw: d1Raw,
+    slug: 'd1-rfi-decision-lab',
+    title: 'RFI Decision Lab',
+    subtitle: 'Open or fold in 30 hands',
+    duration: '15 min',
+    points: 60,
+    summary: 'Rapid-fire RFI reps to lock in position discipline.',
   },
   {
     id: 'D2',
-    kind: 'drill',
-    label: 'Drill D2',
-    theme: '3-bet or defend',
-    est: '25 spots',
-    points: 180,
-    accent: 'aurora',
-    summary: 'Choose between 3-bet, call, and fold against opens using a clean default system.',
-    raw: d2Raw,
+    slug: 'd2-3bet-or-defend-lab',
+    title: '3-Bet or Defend Lab',
+    subtitle: 'Pressure vs protection',
+    duration: '18 min',
+    points: 70,
+    summary: 'Choose 3-bet, call, or fold in modern pressure spots.',
   },
   {
     id: 'D3',
-    kind: 'drill',
-    label: 'Drill D3',
-    theme: 'BB defense speed',
-    est: '20 spots',
-    points: 180,
-    accent: 'nebula',
-    summary: 'Sharpen quick big-blind decisions against CO and BTN pressure.',
-    raw: d3Raw,
+    slug: 'd3-bb-defense-speed-drill',
+    title: 'BB Defense Speed Drill',
+    subtitle: 'Pot odds + realization',
+    duration: '14 min',
+    points: 60,
+    summary: 'Fast repetitions on blind defense against common opens.',
   },
   {
     id: 'D4',
-    kind: 'drill',
-    label: 'Drill D4',
-    theme: 'Final assessment',
-    est: '30 questions',
-    points: 220,
-    accent: 'lunar',
-    summary: 'Run the full preflop gate and verify you can execute defaults under pressure.',
-    raw: d4Raw,
+    slug: 'd4-final-assessment',
+    title: 'Final Assessment',
+    subtitle: 'Integrated preflop exam',
+    duration: '20 min',
+    points: 100,
+    summary: 'Full-spectrum preflop decisions across positions and depths.',
   },
-].map((module) => ({
-  ...module,
-  title: extractTitle(module.raw),
-  html: markdownToHtml(module.raw),
-}));
+];
 
-function extractTitle(raw) {
-  const match = raw.match(/^#\s+(.+)$/m);
-  return match ? match[1].trim() : 'Untitled';
-}
+const contentMap = {
+  A1,
+  A2,
+  A3,
+  A4,
+  A5,
+  A6,
+  A7,
+  D1,
+  D2,
+  D3,
+  D4,
+};
 
-function loadState() {
-  const fallback = {
-    completed: {},
-    score: 0,
-    streak: 0,
-    lastActionDate: null,
-    history: [],
-  };
+const STORAGE_KEY = 'midnight-academy-progress';
 
+const defaultProgress = {
+  completed: {},
+  scores: {},
+};
+
+const loadProgress = () => {
   try {
-    const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
-    if (!parsed || typeof parsed !== 'object') {
-      return fallback;
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    return saved ? { ...defaultProgress, ...saved } : { ...defaultProgress };
+  } catch (error) {
+    return { ...defaultProgress };
+  }
+};
+
+const saveProgress = (progress) => {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+};
+
+const getRoute = () => {
+  const hash = window.location.hash.replace('#', '');
+  if (!hash) return '/';
+  return hash.startsWith('/') ? hash : `/${hash}`;
+};
+
+const baseUrl = import.meta.env.BASE_URL || '/';
+
+const markdownToHtml = (md) => {
+  const lines = md.split('\n');
+  let html = '';
+  let inUl = false;
+  let inOl = false;
+  let inCode = false;
+
+  const closeLists = () => {
+    if (inUl) {
+      html += '</ul>';
+      inUl = false;
     }
-
-    return {
-      ...fallback,
-      ...parsed,
-      completed: parsed.completed || {},
-      history: Array.isArray(parsed.history) ? parsed.history : [],
-    };
-  } catch {
-    return fallback;
-  }
-}
-
-let state = loadState();
-
-function saveState() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-}
-
-function todayStamp() {
-  return new Date().toISOString().slice(0, 10);
-}
-
-function previousDay(dateString) {
-  const date = new Date(`${dateString}T00:00:00`);
-  date.setDate(date.getDate() - 1);
-  return date.toISOString().slice(0, 10);
-}
-
-function calculateProgress(currentState) {
-  const completedIds = modules.filter((module) => currentState.completed[module.id]).map((module) => module.id);
-  const completionTotal = completedIds.length;
-  const progressPercent = Math.round((completionTotal / modules.length) * 100);
-  const score = modules.reduce(
-    (sum, module) => sum + (currentState.completed[module.id] ? module.points : 0),
-    0,
-  );
-
-  return {
-    completedIds,
-    completionTotal,
-    progressPercent,
-    score,
-    chaptersDone: modules.filter((module) => module.kind === 'chapter' && currentState.completed[module.id]).length,
-    drillsDone: modules.filter((module) => module.kind === 'drill' && currentState.completed[module.id]).length,
-  };
-}
-
-function buildBadges(metrics, currentState) {
-  const badges = [];
-
-  if (metrics.completionTotal >= 1) {
-    badges.push({ title: 'First Light', detail: 'Completed your first module.' });
-  }
-  if (metrics.chaptersDone === 7) {
-    badges.push({ title: 'Theory Cleared', detail: 'All seven academy chapters complete.' });
-  }
-  if (metrics.drillsDone >= 2) {
-    badges.push({ title: 'Lab Runner', detail: 'Completed at least two drills.' });
-  }
-  if (metrics.progressPercent >= 50) {
-    badges.push({ title: 'Halfway Sharp', detail: 'Reached 50% course progress.' });
-  }
-  if (metrics.progressPercent === 100) {
-    badges.push({ title: 'Midnight Certified', detail: 'Finished every chapter and drill.' });
-  }
-  if (currentState.streak >= 3) {
-    badges.push({ title: 'Night Shift', detail: `${currentState.streak}-day study streak.` });
-  }
-  if (metrics.score >= 1200) {
-    badges.push({ title: 'Point Grinder', detail: `${metrics.score} total academy points.` });
-  }
-
-  return badges;
-}
-
-function toggleCompletion(moduleId) {
-  const wasComplete = Boolean(state.completed[moduleId]);
-  const actionDate = todayStamp();
-
-  state.completed[moduleId] = !wasComplete;
-
-  if (!wasComplete) {
-    if (state.lastActionDate === actionDate) {
-      state.streak = Math.max(state.streak, 1);
-    } else if (state.lastActionDate === previousDay(actionDate)) {
-      state.streak += 1;
-    } else {
-      state.streak = 1;
+    if (inOl) {
+      html += '</ol>';
+      inOl = false;
     }
-
-    state.lastActionDate = actionDate;
-    state.history = [moduleId, ...state.history.filter((id) => id !== moduleId)].slice(0, 5);
-  }
-
-  const metrics = calculateProgress(state);
-  state.score = metrics.score;
-  saveState();
-  render();
-}
-
-function resetProgress() {
-  state = {
-    completed: {},
-    score: 0,
-    streak: 0,
-    lastActionDate: null,
-    history: [],
   };
-  saveState();
-  render();
-}
 
-function escapeHtml(value) {
-  return value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;');
-}
+  const formatInline = (text) =>
+    text
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em>$1</em>')
+      .replace(/`(.+?)`/g, '<code>$1</code>')
+      .replace(/!\[(.*?)\]\((.*?)\)/g, '<img alt="$1" src="$2" />');
 
-function formatInline(text) {
-  return escapeHtml(text)
-    .replace(/`([^`]+)`/g, '<code>$1</code>')
-    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*([^*]+)\*/g, '<em>$1</em>');
-}
-
-function normalizeAssetPaths(text) {
-  return text.replaceAll('/course-md/', `${baseUrl}assets/diagrams/`);
-}
-
-function markdownToHtml(raw) {
-  const lines = normalizeAssetPaths(raw).trim().split('\n');
-  const parts = [];
-  let paragraph = [];
-
-  const flushParagraph = () => {
-    if (!paragraph.length) {
+  lines.forEach((line) => {
+    if (line.startsWith('```')) {
+      if (!inCode) {
+        closeLists();
+        inCode = true;
+        html += '<pre><code>';
+      } else {
+        inCode = false;
+        html += '</code></pre>';
+      }
       return;
     }
 
-    parts.push(`<p>${paragraph.map((line) => formatInline(line)).join('<br />')}</p>`);
-    paragraph = [];
+    if (inCode) {
+      html += `${line}\n`;
+      return;
+    }
+
+    if (!line.trim()) {
+      closeLists();
+      html += '';
+      return;
+    }
+
+    if (line.trim().startsWith('<')) {
+      closeLists();
+      html += line;
+      return;
+    }
+
+    if (/^#{1,6}\s/.test(line)) {
+      closeLists();
+      const level = line.match(/^#+/)[0].length;
+      const text = formatInline(line.replace(/^#{1,6}\s*/, ''));
+      html += `<h${level}>${text}</h${level}>`;
+      return;
+    }
+
+    if (/^>\s?/.test(line)) {
+      closeLists();
+      const quote = formatInline(line.replace(/^>\s?/, ''));
+      html += `<blockquote>${quote}</blockquote>`;
+      return;
+    }
+
+    if (/^\d+\.\s/.test(line)) {
+      if (!inOl) {
+        closeLists();
+        inOl = true;
+        html += '<ol>';
+      }
+      const item = formatInline(line.replace(/^\d+\.\s*/, ''));
+      html += `<li>${item}</li>`;
+      return;
+    }
+
+    if (/^-\s/.test(line)) {
+      if (!inUl) {
+        closeLists();
+        inUl = true;
+        html += '<ul>';
+      }
+      const item = formatInline(line.replace(/^-\s*/, ''));
+      html += `<li>${item}</li>`;
+      return;
+    }
+
+    if (/^---$/.test(line.trim())) {
+      closeLists();
+      html += '<hr />';
+      return;
+    }
+
+    closeLists();
+    html += `<p>${formatInline(line)}</p>`;
+  });
+
+  closeLists();
+
+  return html
+    .replace(/\/(course-md)\//g, `${baseUrl}assets/diagrams/`)
+    .replace(/\n{2,}/g, '\n');
+};
+
+const computeProgress = (progress) => {
+  const totalItems = chapters.length + drills.length;
+  const completedCount = [...chapters, ...drills].filter((item) => progress.completed[item.id]).length;
+  const percent = Math.round((completedCount / totalItems) * 100);
+  const chapterScore = chapters.filter((item) => progress.completed[item.id]).length * 10;
+  const drillScore = drills.reduce((sum, drill) => sum + (Number(progress.scores[drill.id]) || 0), 0);
+  const score = chapterScore + drillScore;
+
+  const badges = [
+    {
+      id: 'initiate',
+      label: 'Initiate',
+      description: 'Complete your first lesson',
+      unlocked: completedCount >= 1,
+    },
+    {
+      id: 'architect',
+      label: 'Range Architect',
+      description: 'Complete A1–A3',
+      unlocked: ['A1', 'A2', 'A3'].every((id) => progress.completed[id]),
+    },
+    {
+      id: 'defender',
+      label: 'Defense Specialist',
+      description: 'Complete A4 + D3',
+      unlocked: ['A4', 'D3'].every((id) => progress.completed[id]),
+    },
+    {
+      id: 'certified',
+      label: 'Midnight Certified',
+      description: 'Complete all chapters and drills',
+      unlocked: completedCount === totalItems,
+    },
+  ];
+
+  return {
+    totalItems,
+    completedCount,
+    percent,
+    score,
+    badges,
   };
+};
 
-  for (let index = 0; index < lines.length; index += 1) {
-    const line = lines[index].trimEnd();
-    const trimmed = line.trim();
+const getNextItem = (progress) => {
+  const nextChapter = chapters.find((chapter) => !progress.completed[chapter.id]);
+  if (nextChapter) return { type: 'chapter', ...nextChapter };
+  const nextDrill = drills.find((drill) => !progress.completed[drill.id]);
+  return nextDrill ? { type: 'drill', ...nextDrill } : null;
+};
 
-    if (!trimmed) {
-      flushParagraph();
-      continue;
-    }
+const getChapterBySlug = (slug) => chapters.find((chapter) => chapter.slug === slug);
+const getDrillBySlug = (slug) => drills.find((drill) => drill.slug === slug);
 
-    if (trimmed.startsWith('<')) {
-      flushParagraph();
-      parts.push(trimmed);
-      continue;
-    }
-
-    if (trimmed === '---') {
-      flushParagraph();
-      parts.push('<hr />');
-      continue;
-    }
-
-    const heading = trimmed.match(/^(#{1,6})\s+(.+)$/);
-    if (heading) {
-      flushParagraph();
-      const level = heading[1].length;
-      parts.push(`<h${level}>${formatInline(heading[2])}</h${level}>`);
-      continue;
-    }
-
-    const image = trimmed.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
-    if (image) {
-      flushParagraph();
-      parts.push(`
-        <figure class="content-figure">
-          <img src="${image[2]}" alt="${escapeHtml(image[1])}" loading="lazy" />
-        </figure>
-      `);
-      continue;
-    }
-
-    if (/^>\s?/.test(trimmed)) {
-      flushParagraph();
-      const quoteLines = [trimmed.replace(/^>\s?/, '')];
-      while (index + 1 < lines.length && /^>\s?/.test(lines[index + 1].trim())) {
-        index += 1;
-        quoteLines.push(lines[index].trim().replace(/^>\s?/, ''));
-      }
-      parts.push(`<blockquote>${formatInline(quoteLines.join(' '))}</blockquote>`);
-      continue;
-    }
-
-    if (/^- /.test(trimmed)) {
-      flushParagraph();
-      const listLines = [trimmed];
-      while (index + 1 < lines.length && /^- /.test(lines[index + 1].trim())) {
-        index += 1;
-        listLines.push(lines[index].trim());
-      }
-      parts.push(`<ul>${listLines
-        .map((item) => `<li>${formatInline(item.replace(/^- /, ''))}</li>`)
-        .join('')}</ul>`);
-      continue;
-    }
-
-    if (/^\d+\.\s/.test(trimmed)) {
-      flushParagraph();
-      const listLines = [trimmed];
-      while (index + 1 < lines.length && /^\d+\.\s/.test(lines[index + 1].trim())) {
-        index += 1;
-        listLines.push(lines[index].trim());
-      }
-      parts.push(`<ol>${listLines
-        .map((item) => `<li>${formatInline(item.replace(/^\d+\.\s/, ''))}</li>`)
-        .join('')}</ol>`);
-      continue;
-    }
-
-    paragraph.push(trimmed);
-  }
-
-  flushParagraph();
-  return parts.join('');
-}
-
-function renderNav() {
-  return `
-    <a class="skip-link" href="#main-content">Skip to course content</a>
-    <header class="site-header">
-      <div class="brand-lockup">
-        <p class="eyebrow">Midnight Academy</p>
-        <h1>Course 1 Preflop — Modern Premium</h1>
-        <p class="header-copy">A dark-only training surface for disciplined preflop reps, review, and milestone tracking.</p>
-      </div>
-      <nav class="site-nav" aria-label="Primary">
-        <a href="#dashboard">Dashboard</a>
-        <a href="#chapters">Chapters</a>
-        <a href="#drills">Drills</a>
-        <a href="#progress">Progress</a>
-      </nav>
-    </header>
-  `;
-}
-
-function renderHero(metrics, badges) {
-  return `
-    <section class="hero panel" id="dashboard" aria-labelledby="dashboard-title">
-      <div class="hero-copy">
-        <p class="eyebrow">Academy Dashboard</p>
-        <h2 id="dashboard-title">Sharpen the premium preflop baseline without leaving a single page.</h2>
-        <p>Every module below is linked, readable, and trackable. Mark chapters and drills complete to persist progress, points, streaks, and milestone badges in local storage.</p>
-        <div class="hero-actions">
-          <a class="button button-primary" href="#chapters">Start the chapters</a>
-          <a class="button button-secondary" href="#drills">Jump to drills</a>
-        </div>
-      </div>
-      <div class="hero-stats" aria-label="Course metrics">
-        <div class="metric-card">
-          <span>Completion</span>
-          <strong>${metrics.progressPercent}%</strong>
-        </div>
-        <div class="metric-card">
-          <span>Score</span>
-          <strong>${metrics.score}</strong>
-        </div>
-        <div class="metric-card">
-          <span>Streak</span>
-          <strong>${state.streak} day${state.streak === 1 ? '' : 's'}</strong>
-        </div>
-      </div>
-      <div class="badge-strip" aria-label="Milestones">
-        ${badges.length
-          ? badges.map((badge) => `<span class="badge-pill" title="${escapeHtml(badge.detail)}">${badge.title}</span>`).join('')
-          : '<span class="badge-pill badge-pill-muted">No badges yet</span>'}
-      </div>
-    </section>
-  `;
-}
-
-function renderOverviewCards(items, title, description, id) {
-  return `
-    <section class="panel" id="${id}" aria-labelledby="${id}-title">
-      <div class="section-heading">
-        <div>
-          <p class="eyebrow">${items[0]?.kind === 'chapter' ? 'Core Theory' : 'Applied Labs'}</p>
-          <h2 id="${id}-title">${title}</h2>
-        </div>
-        <p>${description}</p>
-      </div>
-      <div class="card-grid">
-        ${items.map(renderModuleCard).join('')}
-      </div>
-    </section>
-  `;
-}
-
-function renderModuleCard(module) {
-  const complete = Boolean(state.completed[module.id]);
-  return `
-    <article class="course-card course-card-${module.accent}">
-      <div class="course-card-top">
-        <span class="card-label">${module.label}</span>
-        <span class="card-est">${module.est}</span>
-      </div>
-      <h3><a href="#module-${module.id}">${module.title}</a></h3>
-      <p class="card-theme">${module.theme}</p>
-      <p>${module.summary}</p>
-      <div class="card-actions">
-        <a class="button button-link" href="#module-${module.id}">Open section</a>
-        <button
-          class="button ${complete ? 'button-secondary' : 'button-primary'}"
-          type="button"
-          data-complete-toggle="${module.id}"
-          aria-pressed="${complete}"
-        >
-          ${complete ? 'Completed' : 'Mark complete'}
-        </button>
-      </div>
-    </article>
-  `;
-}
-
-function renderProgress(metrics, badges) {
-  const recent = state.history
-    .map((id) => modules.find((module) => module.id === id))
-    .filter(Boolean);
-
-  return `
-    <aside class="panel progress-panel" id="progress" aria-labelledby="progress-title">
-      <div class="section-heading">
-        <div>
-          <p class="eyebrow">Progress Panel</p>
-          <h2 id="progress-title">Track cadence, not just content.</h2>
-        </div>
-      </div>
-      <div class="progress-bar" aria-hidden="true">
-        <span style="width:${metrics.progressPercent}%"></span>
-      </div>
-      <dl class="progress-list">
-        <div><dt>Modules done</dt><dd>${metrics.completionTotal} / ${modules.length}</dd></div>
-        <div><dt>Chapters cleared</dt><dd>${metrics.chaptersDone} / 7</dd></div>
-        <div><dt>Drills cleared</dt><dd>${metrics.drillsDone} / 4</dd></div>
-        <div><dt>Current streak</dt><dd>${state.streak} day${state.streak === 1 ? '' : 's'}</dd></div>
-      </dl>
-      <div class="badge-panel">
-        <h3>Badges</h3>
-        ${badges.length
-          ? badges.map((badge) => `<p><strong>${badge.title}</strong> <span>${badge.detail}</span></p>`).join('')
-          : '<p>No badges unlocked yet. Finish a module to start the chain.</p>'}
-      </div>
-      <div class="recent-panel">
-        <h3>Recent clears</h3>
-        ${recent.length
-          ? recent.map((module) => `<p><a href="#module-${module.id}">${module.id}</a> ${module.title}</p>`).join('')
-          : '<p>No completed modules yet.</p>'}
-      </div>
-      <button class="button button-danger" type="button" data-reset-progress="true">Reset progress</button>
-    </aside>
-  `;
-}
-
-function renderContentSections(items, id, title) {
-  return `
-    <section class="content-rail" aria-labelledby="${id}-content-title">
-      <div class="section-heading">
-        <div>
-          <p class="eyebrow">${id === 'chapters' ? 'Deep Study' : 'Practical Reps'}</p>
-          <h2 id="${id}-content-title">${title}</h2>
-        </div>
-      </div>
-      ${items.map(renderContentSection).join('')}
-    </section>
-  `;
-}
-
-function renderContentSection(module) {
-  const complete = Boolean(state.completed[module.id]);
-
-  return `
-    <article class="module panel" id="module-${module.id}" aria-labelledby="${module.id}-title">
-      <div class="module-header">
-        <div>
-          <p class="module-kicker">${module.label} · ${module.theme}</p>
-          <h3 id="${module.id}-title">${module.title}</h3>
-        </div>
-        <div class="module-controls">
-          <a class="button button-link" href="#dashboard">Back to top</a>
-          <button
-            class="button ${complete ? 'button-secondary' : 'button-primary'}"
-            type="button"
-            data-complete-toggle="${module.id}"
-            aria-pressed="${complete}"
-          >
-            ${complete ? 'Completed' : `Earn ${module.points} pts`}
-          </button>
-        </div>
-      </div>
-      <p class="module-summary">${module.summary}</p>
-      <div class="module-body">
-        ${module.html}
-      </div>
-    </article>
-  `;
-}
-
-function render() {
-  const metrics = calculateProgress(state);
-  const badges = buildBadges(metrics, state);
-  const chapters = modules.filter((module) => module.kind === 'chapter');
-  const drills = modules.filter((module) => module.kind === 'drill');
+const renderLayout = (content, route) => {
+  const progress = loadProgress();
+  const stats = computeProgress(progress);
+  const nextItem = getNextItem(progress);
 
   app.innerHTML = `
-    ${renderNav()}
-    <main class="app-shell" id="main-content">
-      ${renderHero(metrics, badges)}
-      <div class="layout-grid">
-        <div class="main-stack">
-          ${renderOverviewCards(chapters, 'Chapter map A1-A7', 'Each chapter card opens a full in-page section with semantic headings and linked content.', 'chapters')}
-          ${renderOverviewCards(drills, 'Drill deck D1-D4', 'Applied labs for open/fold reps, 3-bet decisions, big blind defense, and the final assessment.', 'drills')}
-          ${renderContentSections(chapters, 'chapters', 'Chapter Library')}
-          ${renderContentSections(drills, 'drills', 'Drill Library')}
+    <div class="page">
+      <header class="site-header">
+        <div class="logo">
+          <span class="logo-mark">MA</span>
+          <div>
+            <div class="logo-title">Midnight Academy</div>
+            <div class="logo-subtitle">Course 1 · Preflop Mastery</div>
+          </div>
         </div>
-        ${renderProgress(metrics, badges)}
-      </div>
-    </main>
+        <nav class="site-nav">
+          <a href="#/course" class="${route === '/course' ? 'active' : ''}">Overview</a>
+          <a href="#/course/chapters" class="${route.startsWith('/course/chapters') ? 'active' : ''}">Chapters</a>
+          <a href="#/course/drills" class="${route.startsWith('/course/drills') ? 'active' : ''}">Drills</a>
+          <a href="#/course/progress" class="${route === '/course/progress' ? 'active' : ''}">Progress</a>
+          <a href="#/course/badges" class="${route === '/course/badges' ? 'active' : ''}">Badges</a>
+        </nav>
+        <div class="academy-stats">
+          <div>
+            <div class="stat-label">Completion</div>
+            <div class="stat-value">${stats.percent}%</div>
+          </div>
+          <div>
+            <div class="stat-label">Score</div>
+            <div class="stat-value">${stats.score}</div>
+          </div>
+        </div>
+      </header>
+      <main class="wrap">
+        ${content}
+      </main>
+      <footer class="site-footer">
+        <div>Midnight Academy · Modern Premium Preflop System</div>
+        <div class="footer-links">
+          <span>Learn · Drill · Review</span>
+          <span>Progress: ${stats.completedCount}/${stats.totalItems}</span>
+        </div>
+      </footer>
+      ${nextItem ? `
+        <a class="floating-cta" href="#/course/${nextItem.type === 'chapter' ? 'chapters' : 'drills'}/${nextItem.slug}">
+          Continue ${nextItem.type === 'chapter' ? 'Chapter' : 'Drill'} ${nextItem.id}
+        </a>
+      ` : ''}
+    </div>
   `;
-}
 
-app.addEventListener('click', (event) => {
-  const toggleId = event.target.closest('[data-complete-toggle]')?.dataset.completeToggle;
-  if (toggleId) {
-    toggleCompletion(toggleId);
+  attachEventHandlers();
+};
+
+const renderCourseOverview = () => {
+  const progress = loadProgress();
+  const stats = computeProgress(progress);
+  const nextItem = getNextItem(progress);
+
+  return `
+    <section class="hero">
+      <div>
+        <p class="eyebrow">Midnight Academy · Modern Premium</p>
+        <h1>Preflop mastery with discipline, not drama.</h1>
+        <p class="lead">A premium, structured learning system for serious preflop decisions — built for clarity, speed, and long-term edge.</p>
+        <div class="hero-actions">
+          <a class="btn primary" href="#/course/chapters">Browse Chapters</a>
+          <a class="btn ghost" href="#/course/drills">Run Drills</a>
+        </div>
+        <div class="hero-meta">
+          <div>
+            <span class="meta-label">Track</span>
+            <span class="meta-value">${stats.completedCount}/${stats.totalItems} modules</span>
+          </div>
+          <div>
+            <span class="meta-label">Academy Score</span>
+            <span class="meta-value">${stats.score}</span>
+          </div>
+          <div>
+            <span class="meta-label">Next up</span>
+            <span class="meta-value">${nextItem ? `${nextItem.id} · ${nextItem.title}` : 'All complete'}</span>
+          </div>
+        </div>
+      </div>
+      <div class="hero-panel">
+        <div class="panel-header">Progress Snapshot</div>
+        <div class="progress-bar">
+          <span style="width: ${stats.percent}%"></span>
+        </div>
+        <div class="progress-row">
+          <span>${stats.percent}% complete</span>
+          <span>${stats.completedCount} / ${stats.totalItems}</span>
+        </div>
+        <div class="badge-grid">
+          ${stats.badges
+            .map(
+              (badge) => `
+              <div class="badge ${badge.unlocked ? 'active' : ''}">
+                <div class="badge-title">${badge.label}</div>
+                <div class="badge-desc">${badge.description}</div>
+              </div>
+            `
+            )
+            .join('')}
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <h2>Academy Pillars</h2>
+        <p>Learn the system, drill the reps, review the feedback.</p>
+      </div>
+      <div class="grid three">
+        <div class="card">
+          <h3>Learn</h3>
+          <p>Seven structured chapters that build a complete preflop decision model.</p>
+          <div class="pill">A1–A7</div>
+        </div>
+        <div class="card">
+          <h3>Drill</h3>
+          <p>Targeted labs that convert charts into fast, consistent instincts.</p>
+          <div class="pill">D1–D4</div>
+        </div>
+        <div class="card">
+          <h3>Review</h3>
+          <p>Track score, repetition, and mistakes with a calm, repeatable cadence.</p>
+          <div class="pill">Score + badges</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <h2>Curriculum Roadmap</h2>
+        <p>Follow the academy progression and lock each checkpoint before advancing.</p>
+      </div>
+      <div class="timeline">
+        ${chapters
+          .map((chapter, index) => {
+            const complete = progress.completed[chapter.id];
+            return `
+            <div class="timeline-item ${complete ? 'complete' : ''}">
+              <div class="timeline-index">${index + 1}</div>
+              <div>
+                <div class="timeline-title">${chapter.id} · ${chapter.title}</div>
+                <div class="timeline-subtitle">${chapter.subtitle}</div>
+                <p>${chapter.summary}</p>
+                <a href="#/course/chapters/${chapter.slug}" class="inline-link">Open chapter</a>
+              </div>
+              <div class="timeline-meta">
+                <span>${chapter.duration}</span>
+                <span>${chapter.focus}</span>
+                <span>${complete ? 'Complete' : 'In progress'}</span>
+              </div>
+            </div>
+          `;
+          })
+          .join('')}
+      </div>
+    </section>
+  `;
+};
+
+const renderChaptersIndex = () => {
+  const progress = loadProgress();
+
+  return `
+    <section class="section">
+      <div class="section-header">
+        <h1>Chapters (A1–A7)</h1>
+        <p>Core lessons that define your preflop decision system.</p>
+      </div>
+      <div class="grid two">
+        ${chapters
+          .map((chapter) => {
+            const complete = progress.completed[chapter.id];
+            return `
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h3>${chapter.id} · ${chapter.title}</h3>
+                  <p>${chapter.subtitle}</p>
+                </div>
+                <span class="status ${complete ? 'complete' : ''}">${complete ? 'Complete' : 'Pending'}</span>
+              </div>
+              <p>${chapter.summary}</p>
+              <div class="card-meta">
+                <span>${chapter.duration}</span>
+                <span>${chapter.focus}</span>
+              </div>
+              <div class="card-actions">
+                <a class="btn ghost" href="#/course/chapters/${chapter.slug}">Open Chapter</a>
+                <a class="btn ${complete ? 'ghost' : 'primary'}" href="#/course/chapters/${chapter.slug}/quiz">
+                  ${complete ? 'Review Quiz' : 'Take Quiz'}
+                </a>
+              </div>
+            </div>
+          `;
+          })
+          .join('')}
+      </div>
+    </section>
+  `;
+};
+
+const renderDrillsIndex = () => {
+  const progress = loadProgress();
+
+  return `
+    <section class="section">
+      <div class="section-header">
+        <h1>Drills (D1–D4)</h1>
+        <p>Targeted reps that reinforce the lesson mechanics.</p>
+      </div>
+      <div class="grid two">
+        ${drills
+          .map((drill) => {
+            const complete = progress.completed[drill.id];
+            const score = progress.scores[drill.id] || '';
+            return `
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h3>${drill.id} · ${drill.title}</h3>
+                  <p>${drill.subtitle}</p>
+                </div>
+                <span class="status ${complete ? 'complete' : ''}">${complete ? 'Complete' : 'Pending'}</span>
+              </div>
+              <p>${drill.summary}</p>
+              <div class="card-meta">
+                <span>${drill.duration}</span>
+                <span>${drill.points} pts</span>
+              </div>
+              <div class="score-input">
+                <label>Score</label>
+                <input type="number" min="0" max="${drill.points}" value="${score}" data-score-input="${drill.id}" />
+                <button class="btn ghost" data-score-save="${drill.id}">Save</button>
+              </div>
+              <div class="card-actions">
+                <a class="btn ghost" href="#/course/drills/${drill.slug}">Open Drill</a>
+                <button class="btn ${complete ? 'ghost' : 'primary'}" data-complete="${drill.id}">
+                  ${complete ? 'Mark Incomplete' : 'Mark Complete'}
+                </button>
+              </div>
+            </div>
+          `;
+          })
+          .join('')}
+      </div>
+    </section>
+  `;
+};
+
+const renderProgressPage = () => {
+  const progress = loadProgress();
+  const stats = computeProgress(progress);
+
+  return `
+    <section class="section">
+      <div class="section-header">
+        <h1>Progress Dashboard</h1>
+        <p>Completion, score, and progression summary.</p>
+      </div>
+      <div class="grid two">
+        <div class="card highlight">
+          <h3>Academy Progress</h3>
+          <p>Completion based on chapter quizzes and drill finishes.</p>
+          <div class="progress-bar">
+            <span style="width: ${stats.percent}%"></span>
+          </div>
+          <div class="progress-row">
+            <span>${stats.percent}% complete</span>
+            <span>${stats.completedCount}/${stats.totalItems}</span>
+          </div>
+        </div>
+        <div class="card highlight">
+          <h3>Academy Score</h3>
+          <p>Total score blends chapter completion and drill performance.</p>
+          <div class="score-display">${stats.score}</div>
+          <div class="score-subtext">Keep drilling to raise the average.</div>
+        </div>
+      </div>
+    </section>
+    <section class="section">
+      <div class="section-header">
+        <h2>Chapter Status</h2>
+      </div>
+      <div class="grid two">
+        ${chapters
+          .map((chapter) => {
+            const complete = progress.completed[chapter.id];
+            return `
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h3>${chapter.id} · ${chapter.title}</h3>
+                  <p>${chapter.subtitle}</p>
+                </div>
+                <span class="status ${complete ? 'complete' : ''}">${complete ? 'Complete' : 'Pending'}</span>
+              </div>
+              <p>${chapter.summary}</p>
+              <a class="btn ghost" href="#/course/chapters/${chapter.slug}">Open Chapter</a>
+            </div>
+          `;
+          })
+          .join('')}
+      </div>
+    </section>
+  `;
+};
+
+const renderBadgesPage = () => {
+  const progress = loadProgress();
+  const stats = computeProgress(progress);
+
+  return `
+    <section class="section">
+      <div class="section-header">
+        <h1>Badges & Achievements</h1>
+        <p>Earned based on actual completion and scores.</p>
+      </div>
+      <div class="grid two">
+        ${stats.badges
+          .map(
+            (badge) => `
+            <div class="card ${badge.unlocked ? 'highlight' : ''}">
+              <h3>${badge.label}</h3>
+              <p>${badge.description}</p>
+              <div class="status ${badge.unlocked ? 'complete' : ''}">${badge.unlocked ? 'Unlocked' : 'Locked'}</div>
+            </div>
+          `
+          )
+          .join('')}
+      </div>
+    </section>
+  `;
+};
+
+const renderChapterLesson = (chapter) => {
+  const progress = loadProgress();
+  const htmlContent = markdownToHtml(contentMap[chapter.id]);
+  const complete = progress.completed[chapter.id];
+  const index = chapters.findIndex((item) => item.id === chapter.id);
+  const prev = index > 0 ? chapters[index - 1] : null;
+  const next = index < chapters.length - 1 ? chapters[index + 1] : null;
+
+  return `
+    <section class="lesson-hero">
+      <div>
+        <p class="eyebrow">Chapter ${chapter.id}</p>
+        <h1>${chapter.title}</h1>
+        <p class="lead">${chapter.subtitle}</p>
+        <div class="lesson-actions">
+          <a class="btn primary" href="#/course/chapters/${chapter.slug}/quiz">${complete ? 'Review Quiz' : 'Take Chapter Quiz'}</a>
+          <a class="btn ghost" href="#/course/chapters">Back to Chapters</a>
+        </div>
+      </div>
+      <div class="lesson-panel">
+        <div class="panel-header">Chapter Status</div>
+        <div class="status-row">
+          <span>Status</span>
+          <span>${complete ? 'Complete' : 'In progress'}</span>
+        </div>
+        <div class="status-row">
+          <span>Duration</span>
+          <span>${chapter.duration}</span>
+        </div>
+        <div class="status-row">
+          <span>Focus</span>
+          <span>${chapter.focus}</span>
+        </div>
+        <div class="status-row">
+          <span>Summary</span>
+          <span>${chapter.summary}</span>
+        </div>
+      </div>
+    </section>
+    <section class="lesson-grid">
+      <aside class="lesson-sidebar">
+        <div class="card">
+          <h3>Progression</h3>
+          <p>Follow the chapter ladder and keep the system cohesive.</p>
+          <ul>
+            ${prev ? `<li><a class="inline-link" href="#/course/chapters/${prev.slug}">← ${prev.id} · ${prev.title}</a></li>` : '<li>Start of the track</li>'}
+            <li><strong>Current:</strong> ${chapter.id} · ${chapter.title}</li>
+            ${next ? `<li><a class="inline-link" href="#/course/chapters/${next.slug}">${next.id} · ${next.title} →</a></li>` : '<li>Final chapter</li>'}
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Quiz checkpoint</h3>
+          <p>Complete the quiz to lock this chapter.</p>
+          <a class="btn ghost" href="#/course/chapters/${chapter.slug}/quiz">Take Chapter Quiz</a>
+        </div>
+      </aside>
+      <article class="lesson-content">
+        ${htmlContent}
+        <div class="card highlight" style="margin-top: 32px;">
+          <h3>End-of-chapter checkpoint</h3>
+          <p>When you can explain this lesson without notes, take the quiz to seal the rep.</p>
+          <div class="card-actions">
+            <a class="btn primary" href="#/course/chapters/${chapter.slug}/quiz">${complete ? 'Review Quiz' : 'Take Chapter Quiz'}</a>
+            ${next ? `<a class="btn ghost" href="#/course/chapters/${next.slug}">Next Chapter</a>` : '<a class="btn ghost" href="#/course/drills">Go to Drills</a>'}
+          </div>
+        </div>
+      </article>
+    </section>
+  `;
+};
+
+const renderChapterQuiz = (chapter) => {
+  const progress = loadProgress();
+  const complete = progress.completed[chapter.id];
+  const index = chapters.findIndex((item) => item.id === chapter.id);
+  const prev = index > 0 ? chapters[index - 1] : null;
+  const next = index < chapters.length - 1 ? chapters[index + 1] : null;
+
+  return `
+    <section class="section">
+      <div class="section-header">
+        <p class="eyebrow">Chapter ${chapter.id} · Quiz</p>
+        <h1>Chapter Quiz: ${chapter.title}</h1>
+        <p>Four-question checkpoint to confirm the lesson is locked.</p>
+      </div>
+      <div class="grid two">
+        <div class="card">
+          <h3>Quiz brief</h3>
+          <ul>
+            <li>Questions: 4</li>
+            <li>Completion: submit to mark complete</li>
+            <li>Retake anytime to sharpen recall</li>
+          </ul>
+          <p>Quiz content will be wired into the next iteration. For now, use this checkpoint to log completion after review.</p>
+        </div>
+        <div class="card highlight">
+          <h3>Completion</h3>
+          <p>Status: <strong>${complete ? 'Complete' : 'Pending'}</strong></p>
+          <div class="card-actions">
+            <button class="btn ${complete ? 'ghost' : 'primary'}" data-complete="${chapter.id}">
+              ${complete ? 'Mark Incomplete' : 'Submit Quiz'}
+            </button>
+            <a class="btn ghost" href="#/course/chapters/${chapter.slug}">Back to Lesson</a>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-top: 24px;">
+        <h3>Next steps</h3>
+        <p>Keep the chain moving.</p>
+        <div class="card-actions">
+          ${prev ? `<a class="btn ghost" href="#/course/chapters/${prev.slug}">Previous Chapter</a>` : ''}
+          ${next ? `<a class="btn primary" href="#/course/chapters/${next.slug}">Continue to ${next.id}</a>` : '<a class="btn primary" href="#/course/drills">Go to Drills</a>'}
+        </div>
+      </div>
+    </section>
+  `;
+};
+
+const renderDrillPage = (drill) => {
+  const progress = loadProgress();
+  const htmlContent = markdownToHtml(contentMap[drill.id]);
+  const complete = progress.completed[drill.id];
+  const score = progress.scores[drill.id] || '';
+  const index = drills.findIndex((item) => item.id === drill.id);
+  const prev = index > 0 ? drills[index - 1] : null;
+  const next = index < drills.length - 1 ? drills[index + 1] : null;
+
+  return `
+    <section class="lesson-hero">
+      <div>
+        <p class="eyebrow">Drill ${drill.id}</p>
+        <h1>${drill.title}</h1>
+        <p class="lead">${drill.subtitle}</p>
+        <div class="lesson-actions">
+          <button class="btn ${complete ? 'ghost' : 'primary'}" data-complete="${drill.id}">
+            ${complete ? 'Mark Incomplete' : 'Mark Complete'}
+          </button>
+          <a class="btn ghost" href="#/course/drills">Back to Drills</a>
+        </div>
+      </div>
+      <div class="lesson-panel">
+        <div class="panel-header">Drill Status</div>
+        <div class="status-row">
+          <span>Status</span>
+          <span>${complete ? 'Complete' : 'In progress'}</span>
+        </div>
+        <div class="status-row">
+          <span>Duration</span>
+          <span>${drill.duration}</span>
+        </div>
+        <div class="status-row">
+          <span>Focus</span>
+          <span>${drill.summary}</span>
+        </div>
+        <div class="score-input full">
+          <label>Record drill score</label>
+          <input type="number" min="0" max="${drill.points}" value="${score}" data-score-input="${drill.id}" />
+          <button class="btn ghost" data-score-save="${drill.id}">Save Score</button>
+        </div>
+      </div>
+    </section>
+    <section class="lesson-grid">
+      <aside class="lesson-sidebar">
+        <div class="card">
+          <h3>Drill cadence</h3>
+          <p>Repeat until your response is automatic.</p>
+          <ul>
+            ${prev ? `<li><a class="inline-link" href="#/course/drills/${prev.slug}">← ${prev.id} · ${prev.title}</a></li>` : '<li>Start of drills</li>'}
+            <li><strong>Current:</strong> ${drill.id} · ${drill.title}</li>
+            ${next ? `<li><a class="inline-link" href="#/course/drills/${next.slug}">${next.id} · ${next.title} →</a></li>` : '<li>Final drill</li>'}
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Keep the chain</h3>
+          <p>Log your score every run to track climb rate.</p>
+          <a class="btn ghost" href="#/course/progress">View Progress</a>
+        </div>
+      </aside>
+      <article class="lesson-content">
+        ${htmlContent}
+      </article>
+    </section>
+  `;
+};
+
+const attachEventHandlers = () => {
+  const progress = loadProgress();
+
+  document.querySelectorAll('[data-complete]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const id = button.dataset.complete;
+      progress.completed[id] = !progress.completed[id];
+      saveProgress(progress);
+      render();
+    });
+  });
+
+  document.querySelectorAll('[data-score-save]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const id = button.dataset.scoreSave;
+      const input = document.querySelector(`[data-score-input="${id}"]`);
+      if (!input) return;
+      const value = Math.max(0, Number(input.value || 0));
+      progress.scores[id] = value;
+      saveProgress(progress);
+      render();
+    });
+  });
+};
+
+const render = () => {
+  const route = getRoute();
+
+  if (route === '/') {
+    window.location.hash = '#/course';
     return;
   }
 
-  if (event.target.closest('[data-reset-progress]')) {
-    resetProgress();
+  if (route === '/course') {
+    renderLayout(renderCourseOverview(), route);
+    return;
   }
-});
 
+  if (route === '/course/chapters') {
+    renderLayout(renderChaptersIndex(), route);
+    return;
+  }
+
+  if (route === '/course/drills') {
+    renderLayout(renderDrillsIndex(), route);
+    return;
+  }
+
+  if (route === '/course/progress') {
+    renderLayout(renderProgressPage(), route);
+    return;
+  }
+
+  if (route === '/course/badges') {
+    renderLayout(renderBadgesPage(), route);
+    return;
+  }
+
+  if (route.startsWith('/course/chapters/')) {
+    const parts = route.split('/').filter(Boolean);
+    const slug = parts[2];
+    const isQuiz = parts[3] === 'quiz';
+    const chapter = getChapterBySlug(slug);
+    if (!chapter) {
+      renderLayout('<p class="error">Chapter not found.</p>', route);
+      return;
+    }
+    renderLayout(isQuiz ? renderChapterQuiz(chapter) : renderChapterLesson(chapter), route);
+    return;
+  }
+
+  if (route.startsWith('/course/drills/')) {
+    const slug = route.split('/')[3];
+    const drill = getDrillBySlug(slug);
+    if (!drill) {
+      renderLayout('<p class="error">Drill not found.</p>', route);
+      return;
+    }
+    renderLayout(renderDrillPage(drill), route);
+    return;
+  }
+
+  renderLayout('<p class="error">Page not found.</p>', route);
+};
+
+window.addEventListener('hashchange', render);
 render();
