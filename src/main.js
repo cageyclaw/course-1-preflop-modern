@@ -401,6 +401,25 @@ const computeAverage = (scores) => {
   return Math.round(total / scores.length);
 };
 
+const formatDate = (isoString) => {
+  if (!isoString) return '—';
+  return new Date(isoString).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+};
+
+const formatDateTime = (isoString) => {
+  if (!isoString) return '—';
+  return new Date(isoString).toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+};
+
 const computeStreakCount = (attempts) => {
   const dateKeys = Array.from(
     new Set(attempts.map((attempt) => toDateKey(attempt.submittedAt)).filter(Boolean))
@@ -649,6 +668,8 @@ const renderCourseOverview = () => {
   const progress = loadProgress();
   const stats = computeProgress(progress);
   const nextItem = getNextItem(progress);
+  const summary = stats.summary;
+  const earnedBadges = stats.badges.filter((badge) => badge.unlocked);
 
   return `
     <section class="hero">
@@ -662,12 +683,20 @@ const renderCourseOverview = () => {
         </div>
         <div class="hero-meta">
           <div>
-            <span class="meta-label">Track</span>
-            <span class="meta-value">${stats.completedCount}/${stats.totalItems} modules</span>
+            <span class="meta-label">Modules Complete</span>
+            <span class="meta-value">${stats.completedCount}/${stats.totalItems}</span>
+          </div>
+          <div>
+            <span class="meta-label">Chapters</span>
+            <span class="meta-value">${summary.completedChapterQuizzes}/${chapters.length}</span>
+          </div>
+          <div>
+            <span class="meta-label">Drills</span>
+            <span class="meta-value">${summary.completedDrills}/${drills.length}</span>
           </div>
           <div>
             <span class="meta-label">Accuracy Score</span>
-            <span class="meta-value">${stats.score}</span>
+            <span class="meta-value">${stats.score}%</span>
           </div>
           <div>
             <span class="meta-label">Next up</span>
@@ -684,17 +713,32 @@ const renderCourseOverview = () => {
           <span>${stats.percent}% complete</span>
           <span>${stats.completedCount} / ${stats.totalItems}</span>
         </div>
-        <div class="badge-grid">
-          ${stats.badges
-            .map(
-              (badge) => `
-              <div class="badge ${badge.unlocked ? 'active' : ''}">
-                <div class="badge-title">${badge.label}</div>
-                <div class="badge-desc">${badge.description}</div>
-              </div>
-            `
-            )
-            .join('')}
+        <dl class="progress-list">
+          <div>
+            <dt>Chapter Quizzes</dt>
+            <dd>${summary.completedChapterQuizzes}/${chapters.length}</dd>
+          </div>
+          <div>
+            <dt>Drills</dt>
+            <dd>${summary.completedDrills}/${drills.length}</dd>
+          </div>
+          <div>
+            <dt>Avg Chapter Score</dt>
+            <dd>${summary.averageChapterQuizScore}%</dd>
+          </div>
+          <div>
+            <dt>Avg Drill Score</dt>
+            <dd>${summary.averageDrillScore}%</dd>
+          </div>
+        </dl>
+        <div class="badge-panel">
+          <h3>Earned Badges</h3>
+          <p>${earnedBadges.length ? `${earnedBadges.length} unlocked` : 'No badges yet — complete your first quiz or drill to unlock one.'}</p>
+          <div class="badge-strip">
+            ${earnedBadges.length
+              ? earnedBadges.map((badge) => `<span class="badge-pill">${badge.label}</span>`).join('')
+              : '<span class="badge-pill badge-pill-muted">No badges earned yet</span>'}
+          </div>
         </div>
       </div>
     </section>
@@ -745,6 +789,55 @@ const renderCourseOverview = () => {
                 <span>${chapter.duration}</span>
                 <span>${chapter.focus}</span>
                 <span>${complete ? 'Complete' : 'In progress'}</span>
+              </div>
+            </div>
+          `;
+          })
+          .join('')}
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <h2>Drill Progress</h2>
+        <p>Short-form reps that reinforce each strategic layer.</p>
+      </div>
+      <div class="grid two">
+        ${drills
+          .map((drill) => {
+            const activityProgress = progress.activities?.[drill.id] || {};
+            const complete = activityProgress.completed;
+            const bestScore = activityProgress.bestScore;
+            const latestScore = activityProgress.latestScore;
+            const passed = activityProgress.passed;
+            const statusLabel = drill.id === 'D4' && complete
+              ? passed
+                ? 'Passed'
+                : 'Completed'
+              : complete
+                ? 'Complete'
+                : 'Pending';
+            return `
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h3>${drill.id} · ${drill.title}</h3>
+                  <p>${drill.subtitle}</p>
+                </div>
+                <span class="status ${complete ? 'complete' : ''}">${statusLabel}</span>
+              </div>
+              <p>${drill.summary}</p>
+              <div class="card-meta">
+                <span>${drill.duration}</span>
+                <span>${drill.points} pts</span>
+                ${bestScore !== undefined ? `<span>Best: ${bestScore}%</span>` : ''}
+                ${latestScore !== undefined ? `<span>Latest: ${latestScore}%</span>` : ''}
+              </div>
+              <div class="card-actions">
+                <a class="btn ghost" href="#/course/drills/${drill.slug}">Open Drill</a>
+                <a class="btn ${complete ? 'ghost' : 'primary'}" href="#/course/drills/${drill.slug}">
+                  ${complete ? 'Review Drill' : 'Run Drill'}
+                </a>
               </div>
             </div>
           `;
@@ -855,6 +948,8 @@ const renderDrillsIndex = () => {
 const renderProgressPage = () => {
   const progress = loadProgress();
   const stats = computeProgress(progress);
+  const summary = stats.summary;
+  const earnedBadges = stats.badges.filter((badge) => badge.unlocked);
 
   return `
     <section class="section">
@@ -877,8 +972,48 @@ const renderProgressPage = () => {
         <div class="card highlight">
           <h3>Accuracy Score</h3>
           <p>Average of best scores across completed quizzes and drills.</p>
-          <div class="score-display">${stats.score}</div>
+          <div class="score-display">${stats.score}%</div>
           <div class="score-subtext">Retake drills to improve the average.</div>
+        </div>
+      </div>
+    </section>
+    <section class="section">
+      <div class="section-header">
+        <h2>Performance Breakdown</h2>
+        <p>Scores, streaks, and assessment checkpoints.</p>
+      </div>
+      <div class="card-grid">
+        <div class="metric-card">
+          <span>Chapters Completed</span>
+          <strong>${summary.completedChapterQuizzes}/${chapters.length}</strong>
+        </div>
+        <div class="metric-card">
+          <span>Drills Completed</span>
+          <strong>${summary.completedDrills}/${drills.length}</strong>
+        </div>
+        <div class="metric-card">
+          <span>Avg Chapter Score</span>
+          <strong>${summary.averageChapterQuizScore}%</strong>
+        </div>
+        <div class="metric-card">
+          <span>Avg Drill Score</span>
+          <strong>${summary.averageDrillScore}%</strong>
+        </div>
+        <div class="metric-card">
+          <span>Final Assessment</span>
+          <strong>${summary.finalAssessmentScore !== null ? `${summary.finalAssessmentScore}%` : '—'}</strong>
+        </div>
+        <div class="metric-card">
+          <span>Assessment Status</span>
+          <strong>${summary.finalAssessmentScore !== null ? (summary.passedFinalAssessment ? 'Passed' : 'Completed') : 'Not started'}</strong>
+        </div>
+        <div class="metric-card">
+          <span>Streak</span>
+          <strong>${summary.streakCount} day${summary.streakCount === 1 ? '' : 's'}</strong>
+        </div>
+        <div class="metric-card">
+          <span>Last Activity</span>
+          <strong>${formatDateTime(summary.lastActivityAt)}</strong>
         </div>
       </div>
     </section>
@@ -890,6 +1025,9 @@ const renderProgressPage = () => {
         ${chapters
           .map((chapter) => {
             const complete = progress.completed[chapter.id];
+            const activityProgress = progress.activities?.[`${chapter.id}-QUIZ`] || {};
+            const bestScore = activityProgress.bestScore;
+            const latestScore = activityProgress.latestScore;
             return `
             <div class="card">
               <div class="card-header">
@@ -900,11 +1038,72 @@ const renderProgressPage = () => {
                 <span class="status ${complete ? 'complete' : ''}">${complete ? 'Complete' : 'Pending'}</span>
               </div>
               <p>${chapter.summary}</p>
+              <div class="card-meta">
+                <span>${chapter.duration}</span>
+                <span>${chapter.focus}</span>
+                ${bestScore !== undefined ? `<span>Best: ${bestScore}%</span>` : ''}
+                ${latestScore !== undefined ? `<span>Latest: ${latestScore}%</span>` : ''}
+              </div>
               <a class="btn ghost" href="#/course/chapters/${chapter.slug}">Open Chapter</a>
             </div>
           `;
           })
           .join('')}
+      </div>
+    </section>
+    <section class="section">
+      <div class="section-header">
+        <h2>Drill Status</h2>
+      </div>
+      <div class="grid two">
+        ${drills
+          .map((drill) => {
+            const activityProgress = progress.activities?.[drill.id] || {};
+            const complete = activityProgress.completed;
+            const bestScore = activityProgress.bestScore;
+            const latestScore = activityProgress.latestScore;
+            const passed = activityProgress.passed;
+            const statusLabel = drill.id === 'D4' && complete
+              ? passed
+                ? 'Passed'
+                : 'Completed'
+              : complete
+                ? 'Complete'
+                : 'Pending';
+            return `
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h3>${drill.id} · ${drill.title}</h3>
+                  <p>${drill.subtitle}</p>
+                </div>
+                <span class="status ${complete ? 'complete' : ''}">${statusLabel}</span>
+              </div>
+              <p>${drill.summary}</p>
+              <div class="card-meta">
+                <span>${drill.duration}</span>
+                <span>${drill.points} pts</span>
+                ${bestScore !== undefined ? `<span>Best: ${bestScore}%</span>` : ''}
+                ${latestScore !== undefined ? `<span>Latest: ${latestScore}%</span>` : ''}
+              </div>
+              <a class="btn ghost" href="#/course/drills/${drill.slug}">Open Drill</a>
+            </div>
+          `;
+          })
+          .join('')}
+      </div>
+    </section>
+    <section class="section">
+      <div class="section-header">
+        <h2>Badges Earned</h2>
+        <p>${earnedBadges.length ? `${earnedBadges.length} unlocked so far` : 'No badges earned yet.'}</p>
+      </div>
+      <div class="badge-strip">
+        ${earnedBadges.length
+          ? earnedBadges
+            .map((badge) => `<span class="badge-pill">${badge.label} · ${formatDate(badge.earnedAt)}</span>`)
+            .join('')
+          : '<span class="badge-pill badge-pill-muted">Complete a quiz or drill to unlock your first badge.</span>'}
       </div>
     </section>
   `;
