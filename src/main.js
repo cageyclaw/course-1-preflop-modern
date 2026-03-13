@@ -688,7 +688,7 @@ const renderChapterLesson = (chapter) => {
         <h1>${chapter.title}</h1>
         <p class="lead">${chapter.subtitle}</p>
         <div class="lesson-actions">
-          <a class="btn primary" href="#/course/chapters/${chapter.slug}/quiz">${complete ? 'Review Quiz' : 'Take Chapter Quiz'}</a>
+          <a class="btn primary" href="#/course/chapters/${chapter.slug}/quiz">${complete ? 'Review Quiz' : 'Take the Chapter Quiz'}</a>
           <a class="btn ghost" href="#/course/chapters">Back to Chapters</a>
         </div>
       </div>
@@ -726,7 +726,7 @@ const renderChapterLesson = (chapter) => {
         <div class="card">
           <h3>Quiz checkpoint</h3>
           <p>Complete the quiz to lock this chapter.</p>
-          <a class="btn ghost" href="#/course/chapters/${chapter.slug}/quiz">Take Chapter Quiz</a>
+          <a class="btn ghost" href="#/course/chapters/${chapter.slug}/quiz">Take the Chapter Quiz</a>
         </div>
       </aside>
       <article class="lesson-content">
@@ -735,7 +735,7 @@ const renderChapterLesson = (chapter) => {
           <h3>End-of-chapter checkpoint</h3>
           <p>When you can explain this lesson without notes, take the quiz to seal the rep.</p>
           <div class="card-actions">
-            <a class="btn primary" href="#/course/chapters/${chapter.slug}/quiz">${complete ? 'Review Quiz' : 'Take Chapter Quiz'}</a>
+            <a class="btn primary" href="#/course/chapters/${chapter.slug}/quiz">${complete ? 'Review Quiz' : 'Take the Chapter Quiz'}</a>
             ${next ? `<a class="btn ghost" href="#/course/chapters/${next.slug}">Next Chapter</a>` : '<a class="btn ghost" href="#/course/drills">Go to Drills</a>'}
           </div>
         </div>
