@@ -1,0 +1,492 @@
+{
+  "A1-QUIZ": {
+    "activityId": "A1-QUIZ",
+    "activityType": "chapterQuiz",
+    "chapterId": "A1",
+    "title": "RFI Fundamentals",
+    "description": "Test your understanding of opening ranges and position discipline",
+    "questionCount": 4,
+    "questions": [
+      {
+        "id": "A1-Q1",
+        "stem": "What is the primary reason to open-raise from early position?",
+        "scenario": "You hold 77 in UTG (first to act after the big blind)",
+        "choices": [
+          { "id": "a", "label": "To build the pot with a strong hand", "value": "0" },
+          { "id": "b", "label": "Because many opponents fold", "value": "0" },
+          { "id": "c", "label": "To represent a strong range and deny equity to later positions", "value": "1" },
+          { "id": "d", "label": "To induce action from recreational players", "value": "0" }
+        ],
+        "correctChoiceId": "c",
+        "explanation": "Opening from early position is about range strength and positional awareness. You're playing from a position disadvantage, so you need a stronger hand to open. The goal is to deny equity to players who will act after you.",
+        "tags": ["position", "opening", "early position"],
+        "metadata": { "difficulty": "easy", "spotType": "opening" }
+      },
+      {
+        "id": "A1-Q2",
+        "stem": "Which hand is typically the weakest in your UTG opening range?",
+        "scenario": "Building a balanced UTG open-raising range",
+        "choices": [
+          { "id": "a", "label": "77", "value": "0" },
+          { "id": "b", "label": "A9s", "value": "0" },
+          { "id": "c", "label": "KTo", "value": "1" },
+          { "id": "d", "label": "QQ", "value": "0" }
+        ],
+        "correctChoiceId": "c",
+        "explanation": "KTo (King-Ten offsuit) is typically the weakest hand in a tight UTG opening range. It has poor playability post-flop and limited straight potential compared to suited connectors or lower pairs.",
+        "tags": ["range construction", "opening", "weakest hand"],
+        "metadata": { "difficulty": "medium", "spotType": "range" }
+      },
+      {
+        "id": "A1-Q3",
+        "stem": "What size should your standard open-raise be in a 6-max cash game?",
+        "scenario": "Standard open in a $1/$2 deep cash game",
+        "choices": [
+          { "id": "a", "label": "2.5-3x the big blind", "value": "1" },
+          { "id": "b", "label": "4-5x the big blind", "value": "0" },
+          { "id": "c", "label": "1.5x the big blind", "value": "0" },
+          { "id": "d", "label": "Any size is fine as long as you play well", "value": "0" }
+        ],
+        "correctChoiceId": "a",
+        "explanation": "The standard open-raise in 6-max is 2.5-3x the big blind. This balances between getting value and managing risk. Smaller opens allow more flexibility; larger opens are for specific situations.",
+        "tags": ["sizing", "standard", "betting"],
+        "metadata": { "difficulty": "easy", "spotType": "sizing" }
+      },
+      {
+        "id": "A1-Q4",
+        "stem": "When opening from the button, you can relax your range because:",
+        "scenario": "Button play in a 6-max game",
+        "choices": [
+          { "id": "a", "label": "You always act last post-flop", "value": "1" },
+          { "id": "b", "label": "Recreational players always fold to button opens", "value": "0" },
+          { "id": "c", "label": "The button is the most profitable position", "value": "0" },
+          { "id": "d", "label": "You can see the flop for free", "value": "0" }
+        ],
+        "correctChoiceId": "a",
+        "explanation": "Playing from the button means you always act last post-flop, giving you informational and positional advantage. This allows you to open a wider range because you can see how opponents react before making decisions.",
+        "tags": ["position", "button", "range relaxation"],
+        "metadata": { "difficulty": "easy", "spotType": "position" }
+      }
+    ]
+  },
+  "A2-QUIZ": {
+    "activityId": "A2-QUIZ",
+    "activityType": "chapterQuiz",
+    "chapterId": "A2",
+    "title": "Opening Ranges and Position",
+    "description": "Test your understanding of 3-bet ranges and positional adjustments",
+    "questionCount": 4,
+    "questions": [
+      {
+        "id": "A2-Q1",
+        "stem": "What is a 'linear' 3-bet range?",
+        "scenario": "Analyzing 3-bet strategy against an open-raiser",
+        "choices": [
+          { "id": "a", "label": "A range that includes only premium hands (AA-QQ)", "value": "0" },
+          { "id": "b", "label": "A range that goes from medium hands to nuts in a straight line", "value": "1" },
+          { "id": "c", "label": "A range that is perfectly polarized", "value": "0" },
+          { "id": "d", "label": "A range that only includes suited connectors", "value": "0" }
+        ],
+        "correctChoiceId": "b",
+        "explanation": "A linear 3-bet range includes value hands (AA-QQ, AK) at the top, medium hands (AQ, KQs, JJ) in the middle, and some bluffs at the bottom. It 'lines up' from strongest to weakest.",
+        "tags": ["3-bet", "range", "linear"],
+        "metadata": { "difficulty": "medium", "spotType": "3-bet" }
+      },
+      {
+        "id": "A2-Q2",
+        "stem": "Against a 3x open from a tight regular, what should influence your 3-bet sizing?",
+        "scenario": "Deciding on 3-bet sizing against a standard opener",
+        "choices": [
+          { "id": "a", "label": "Always 3-bet 3x to keep the SPR manageable", "value": "0" },
+          { "id": "b", "label": "Use larger sizes with premium hands, smaller with medium ones", "value": "1" },
+          { "id": "c", "label": "Always 3-bet large (4-5x) to punish their range", "value": "0" },
+          { "id": "d", "label": "Match their size exactly regardless of hand strength", "value": "0" }
+        ],
+        "correctChoiceId": "b",
+        "explanation": "Your 3-bet sizing should be hand-dependent. Larger sizes with premium hands extract value and protect your range. Smaller sizes with medium hands allow you to continue profitably while managing risk.",
+        "tags": ["3-bet", "sizing", "optimization"],
+        "metadata": { "difficulty": "hard", "spotType": "sizing" }
+      },
+      {
+        "id": "A2-Q3",
+        "stem": "In a 3-bet pot, which player typically has the range advantage?",
+        "scenario": "Analyzing post-flop dynamics in 3-bet pots",
+        "choices": [
+          { "id": "a", "label": "The 3-bettor always has the advantage", "value": "0" },
+          { "id": "b", "label": "The caller always has the advantage", "value": "0" },
+          { "id": "c", "label": "The 3-bettor at dry boards, the caller at dynamic boards", "value": "1" },
+          { "id": "d", "label": "Neither - 3-bet pots are always marginal", "value": "0" }
+        ],
+        "correctChoiceId": "c",
+        "explanation": "The 3-bettor typically has the advantage on dry boards (paired, Ace-high, rainbow) because their range is stronger. On dynamic boards (connected, suited, monboard), the caller can have more made hands and draws, giving them equity.",
+        "tags": ["3-bet", "range advantage", "board texture"],
+        "metadata": { "difficulty": "hard", "spotType": "postflop" }
+      },
+      {
+        "id": "A2-Q4",
+        "stem": "When facing a 3-bet, which scenario suggests calling rather than 4-betting or folding?",
+        "scenario": "Deciding between calling, 4-betting, or folding to a 3-bet",
+        "choices": [
+          { "id": "a", "label": "You hold AA and want to trap", "value": "0" },
+          { "id": "b", "label": "You hold a medium pocket pair and the 3-bettor is aggressive", "value": "1" },
+          { "id": "c", "label": "You hold KJo and the 3-bet is small", "value": "0" },
+          { "id": "d", "label": "You hold A5s and want to realize equity", "value": "0" }
+        ],
+        "correctChoiceId": "b",
+        "explanation": "Medium pairs often play better as calls against aggressive 3-bettors because 4-betting commits you too deep, and folding discards equity. Calling lets you realize your equity post-flop with position.",
+        "tags": ["3-bet", "defense", "medium pairs"],
+        "metadata": { "difficulty": "medium", "spotType": "defense" }
+      }
+    ]
+  },
+  "A3-QUIZ": {
+    "activityId": "A3-QUIZ",
+    "activityType": "chapterQuiz",
+    "chapterId": "A3",
+    "title": "Three-Betting and Facing Pressure",
+    "description": "Test your understanding of defense strategies and pressure handling",
+    "questionCount": 4,
+    "questions": [
+      {
+        "id": "A3-Q1",
+        "stem": "What is 'bucket' thinking in 3-bet defense?",
+        "scenario": "Organizing your response to a 3-bet",
+        "choices": [
+          { "id": "a", "label": "Sorting your hands by suit for better post-flop play", "value": "0" },
+          { "id": "b", "label": "Categorizing hands into fold, call, and 4-bet buckets for quick decisions", "value": "1" },
+          { "id": "c", "label": "Grouping all suited connectors together", "value": "0" },
+          { "id": "d", "label": "Storing your biggest hands for big pots", "value": "0" }
+        ],
+        "correctChoiceId": "b",
+        "explanation": "Bucket thinking means categorizing your defensive actions into clear buckets: fold (too weak), call (playable but not strong enough to 4-bet), and 4-bet (premium hands). This speeds up decisions and reduces leaks.",
+        "tags": ["3-bet", "defense", "buckets"],
+        "metadata": { "difficulty": "easy", "spotType": "defense" }
+      },
+      {
+        "id": "A3-Q2",
+        "stem": "Why should you avoid calling with dominated offsuit hands like KJo against a 3-bet?",
+        "scenario": "Evaluating KJo against a 3-bet",
+        "choices": [
+          { "id": "a", "label": "Because you'll always miss the flop", "value": "0" },
+          { "id": "b", "label": "Because your kicker gets dominated by their value range and you're dominated by their bluffs", "value": "1" },
+          { "id": "c", "label": "Because you should always 4-bet with position", "value": "0" },
+          { "id": "d", "label": "Because KJo is too strong to call", "value": "0" }
+        ],
+        "correctChoiceId": "b",
+        "explanation": "KJo has reverse implied odds against a strong 3-betting range. When you hit a King, opponents with AK, KQ, or KK have you dominated. When you hit a Jack, you often face higher jacks.",
+        "tags": ["3-bet", "dominated", "reverse implied odds"],
+        "metadata": { "difficulty": "hard", "spotType": "defense" }
+      },
+      {
+        "id": "A3-Q3",
+        "stem": "When should you 4-bet instead of calling with a premium hand like QQ?",
+        "scenario": "Deciding between calling and 4-betting with Queens",
+        "choices": [
+          { "id": "a", "label": "Always 4-bet QQ to build the pot", "value": "0" },
+          { "id": "b", "label": "When the opponent's 3-bet range is wide and they'll fold too much", "value": "1" },
+          { "id": "c", "label": "Never - QQ plays better as a call", "value": "0" },
+          { "id": "d", "label": "Only when you're heads-up against a recreational player", "value": "0" }
+        ],
+        "correctChoiceId": "b",
+        "explanation": "You should 4-bet with QQ when you expect the opponent to fold often (they have a wide 3-bet range or show weakness). 4-betting extracts value and denies equity to their floating range.",
+        "tags": ["4-bet", "value", "optimization"],
+        "metadata": { "difficulty": "medium", "spotType": "4-bet" }
+      },
+      {
+        "id": "A3-Q4",
+        "stem": "What is the key principle when facing a 3-bet out of position?",
+        "scenario": "Defending against a 3-bet from the small blind",
+        "choices": [
+          { "id": "a", "label": "Call more because you have position on the big blind", "value": "0" },
+          { "id": "b", "label": "Narrow your range and play conservatively due to positional disadvantage", "value": "1" },
+          { "id": "c", "label": "Always 4-bet to take control", "value": "0" },
+          { "id": "d", "label": "Float more often since you'll have position post-flop", "value": "0" }
+        ],
+        "correctChoiceId": "b",
+        "explanation": "When out of position, you should defend more tightly. You're giving up positional advantage and will face difficult post-flop decisions. Narrow your calling range and focus on hands with good post-flop playability.",
+        "tags": ["position", "defense", "OOP"],
+        "metadata": { "difficulty": "medium", "spotType": "defense" }
+      }
+    ]
+  },
+  "A4-QUIZ": {
+    "activityId": "A4-QUIZ",
+    "activityType": "chapterQuiz",
+    "chapterId": "A4",
+    "title": "Blind Defense Foundations",
+    "description": "Test your understanding of blind defense strategy",
+    "questionCount": 4,
+    "questions": [
+      {
+        "id": "A4-Q1",
+        "stem": "What is the minimum defense frequency (MDF) concept?",
+        "scenario": "Understanding basic blind defense math",
+        "choices": [
+          { "id": "a", "label": "The percentage of hands you must defend to prevent being exploited", "value": "1" },
+          { "id": "b", "label": "The optimal number of hands to open-raise from the big blind", "value": "0" },
+          { "id": "c", "label": "The maximum amount you can call with in a 3-bet pot", "value": "0" },
+          { "id": "d", "label": "The minimum bet size needed to fold out opponents", "value": "0" }
+        ],
+        "correctChoiceId": "a",
+        "explanation": "MDF is the minimum percentage of hands you must continue with when facing a bet to remain unexploitable. It's calculated as: bet / (bet + pot). For a standard 3x open, MDF is approximately 33%.",
+        "tags": ["blind defense", "MDF", "math"],
+        "metadata": { "difficulty": "medium", "spotType": "defense" }
+      },
+      {
+        "id": "A4-Q2",
+        "stem": "When defending the big blind, which factor should you prioritize?",
+        "scenario": "Deciding what matters most in BB defense",
+        "choices": [
+          { "id": "a", "label": "Pot odds alone", "value": "0" },
+          { "id": "b", "label": "Equity realization and playability post-flop", "value": "1" },
+          { "id": "c", "label": "The opponent's table image", "value": "0" },
+          { "id": "d", "label": "The size of your stack", "value": "0" }
+        ],
+        "correctChoiceId": "b",
+        "explanation": "While pot odds matter, hands that realize their equity well (suited connectors, small pairs, broadway cards) perform better from the big blind. You must consider how well hands play post-flop, not just pre-flop equity.",
+        "tags": ["blind defense", "equity realization", "playability"],
+        "metadata": { "difficulty": "hard", "spotType": "defense" }
+      },
+      {
+        "id": "A4-Q3",
+        "stem": "What should happen to your calling range when facing an open from a tight player?",
+        "scenario": "Adjusting BB defense against different opponent types",
+        "choices": [
+          { "id": "a", "label": "Widen it because they'll fold more", "value": "0" },
+          { "id": "b", "label": "Narrow it because their range is stronger", "value": "1" },
+          { "id": "c", "label": "Keep it the same - ranges are based on position, not opponents", "value": "0" },
+          { "id": "d", "label": "Only defend with premium hands", "value": "0" }
+        ],
+        "correctChoiceId": "b",
+        "explanation": "When facing a tighter opening range, your defense should tighten. Their range is stronger, so you need stronger hands to continue. Their value hands dominate more of your range.",
+        "tags": ["blind defense", "adjustment", "opponent modeling"],
+        "metadata": { "difficulty": "medium", "spotType": "defense" }
+      },
+      {
+        "id": "A4-Q4",
+        "stem": "From the small blind, why is defense more challenging than from the big blind?",
+        "scenario": "Comparing SB vs BB defense",
+        "choices": [
+          { "id": "a", "label": "You have to post the ante", "value": "0" },
+          { "id": "b", "label": "You're out of position for the entire hand and must act first post-flop", "value": "1" },
+          { "id": "c", "label": "The big blind has more information", "value": "0" },
+          { "id": "d", "label": "You can't 3-bet profitably from the small blind", "value": "0" }
+        ],
+        "correctChoiceId": "b",
+        "explanation": "Defending from the small blind is harder because you're playing out of position for the entire hand. You face a difficult post-flop decision every time you call, making it crucial to defend with hands that play well OOP.",
+        "tags": ["blind defense", "position", "small blind"],
+        "metadata": { "difficulty": "easy", "spotType": "defense" }
+      }
+    ]
+  },
+  "A5-QUIZ": {
+    "activityId": "A5-QUIZ",
+    "activityType": "chapterQuiz",
+    "chapterId": "A5",
+    "title": "Isolation and Punish Spots",
+    "description": "Test your understanding of isolation strategy and limper punishment",
+    "questionCount": 4,
+    "questions": [
+      {
+        "id": "A5-Q1",
+        "stem": "What is the primary goal when isolating a limper?",
+        "scenario": "Deciding how to play against a preflop limper",
+        "choices": [
+          { "id": "a", "label": "To get all-in with premium hands", "value": "0" },
+          { "id": "b", "label": "To get heads-up against the limper while denying equity to other opponents", "value": "1" },
+          { "id": "c", "label": "To maximize the pot size regardless of opponent count", "value": "0" },
+          { "id": "d", "label": "To trap recreational players", "value": "0" }
+        ],
+        "correctChoiceId": "b",
+        "explanation": "The main goal of isolation is to get heads-up against the limper while keeping other players out. More players dilute your equity and make the pot more difficult to play. You want to isolate the weak player.",
+        "tags": ["isolation", "limper", "strategy"],
+        "metadata": { "difficulty": "easy", "spotType": "isolation" }
+      },
+      {
+        "id": "A5-Q2",
+        "stem": "What size should you use when isolating a recreational player who limps?",
+        "scenario": "Sizing up an isolation raise",
+        "choices": [
+          { "id": "a", "label": "Standard 3x open", "value": "0" },
+          { "id": "b", "label": "Larger (4-5x) to extract value from recreational players", "value": "1" },
+          { "id": "c", "label": "Smaller (2-2.5x) to induce action", "value": "0" },
+          { "id": "d", "label": "Always match the limper's limp size", "value": "0" }
+        ],
+        "correctChoiceId": "b",
+        "explanation": "When isolating recreational players, use a larger size. They often have weak, sticky ranges and are unlikely to fold. A larger size extracts more value and compensates for the higher variance of playing against their wider range.",
+        "tags": ["isolation", "sizing", "recreational players"],
+        "metadata": { "difficulty": "medium", "spotType": "sizing" }
+      },
+      {
+        "id": "A5-Q3",
+        "stem": "Which hands make the best isolation candidates against a limper?",
+        "scenario": "Selecting hands for isolation",
+        "choices": [
+          { "id": "a", "label": "Medium pairs and suited connectors", "value": "0" },
+          { "id": "b", "label": "Broadway cards and premium pairs that have good post-flop playability", "value": "1" },
+          { "id": "c", "label": "Any two cards - isolation is about position, not hand strength", "value": "0" },
+          { "id": "d", "label": "Only AA-KK", "value": "0" }
+        ],
+        "correctChoiceId": "b",
+        "explanation": "Good isolation hands have equity edge over limper's range and play well post-flop. Broadway cards (ATs, KQs, JTs) and premium pairs (JJ-AA) work well because they have decent equity and can bet/fold on various textures.",
+        "tags": ["isolation", "hand selection", "range"],
+        "metadata": { "difficulty": "medium", "spotType": "range" }
+      },
+      {
+        "id": "A5-Q4",
+        "stem": "When multiple players limp, what should guide your isolation strategy?",
+        "scenario": "Multi-way limper scenarios",
+        "choices": [
+          { "id": "a", "label": "Always raise to isolate - more players means more value", "value": "0" },
+          { "id": "b", "label": "Only isolate the recreational player in the hand; don't isolate vs regulars", "value": "1" },
+          { "id": "c", "label": "Never isolate multi-way - check instead", "value": "0" },
+          { "id": "d", "label": "Raise small to get all of them to fold", "value": "0" }
+        ],
+        "correctChoiceId": "b",
+        "explanation": "In multi-way pots, focus on isolating the weakest player (usually recreational). Don't raise to isolate against regulars who defend correctly. Your raise should target the recreational player while being aware that regulars may call.",
+        "tags": ["isolation", "multi-way", "player selection"],
+        "metadata": { "difficulty": "hard", "spotType": "isolation" }
+      }
+    ]
+  },
+  "A6-QUIZ": {
+    "activityId": "A6-QUIZ",
+    "activityType": "chapterQuiz",
+    "chapterId": "A6",
+    "title": "Population Exploits and Adjustments",
+    "description": "Test your understanding of depth-aware strategy and population adjustments",
+    "questionCount": 4,
+    "questions": [
+      {
+        "id": "A6-Q1",
+        "stem": "How does effective stack depth affect hand values preflop?",
+        "scenario": "Understanding stack-to-pot ratio (SPR)",
+        "choices": [
+          { "id": "a", "label": "Depth doesn't matter preflop - only post-flop", "value": "0" },
+          { "id": "b", "label": "In shallow games (40-60bb), premiums like AA/QQ are worth more, suited connectors less", "value": "1" },
+          { "id": "c", "label": "In deep games (200bb+), all hands are equally valuable", "value": "0" },
+          { "id": "d", "label": "Stack depth only matters for set-mining", "value": "0" }
+        ],
+        "correctChoiceId": "b",
+        "explanation": "In shallow games, premiums (AA, KK, QQ) are worth more because you can get stacks in more easily. Suited connectors lose value because you won't realize equity fully - there isn't enough behind to justify the implied odds.",
+        "tags": ["depth", "SPR", "stack management"],
+        "metadata": { "difficulty": "hard", "spotType": "preflop" }
+      },
+      {
+        "id": "A6-Q2",
+        "stem": "Against a population that overfolds to 3-bets, what is the best exploit?",
+        "scenario": "Exploiting population tendencies",
+        "choices": [
+          { "id": "a", "label": "Tighten your 3-bet range", "value": "0" },
+          { "id": "b", "label": "3-bet lighter with more hands to maximize fold equity", "value": "1" },
+          { "id": "c", "label": "Always slowplay your premiums", "value": "0" },
+          { "id": "d", "label": "Check more post-flop", "value": "0" }
+        ],
+        "correctChoiceId": "b",
+        "explanation": "When the population overfolds to 3-bets, you should 3-bet more hands. This is called 'light 3-betting' and exploits their fold frequency. Even with medium hands, you can 3-bet as a bluff and win the pot preflop.",
+        "tags": ["exploit", "3-bet", "population"],
+        "metadata": { "difficulty": "medium", "spotType": "exploit" }
+      },
+      {
+        "id": "A6-Q3",
+        "stem": "What is a ' polarized' 4-bet range?",
+        "scenario": "Understanding 4-bet range construction",
+        "choices": [
+          { "id": "a", "label": "A range with only value hands (AA-QQ)", "value": "0" },
+          { "id": "b", "label": "A range with only bluffs", "value": "0" },
+          { "id": "c", "label": "A range with nuts at the top and bluffs at the bottom, nothing in the middle", "value": "1" },
+          { "id": "d", "label": "A range that includes all medium-strength hands", "value": "0" }
+        ],
+        "correctChoiceId": "c",
+        "explanation": "A polarized 4-bet range contains the strongest hands (AA, KK, sometimes AK) for value and suited connectors or other bluffs at the bottom. Medium hands (QQ, JJ, AQ) typically just call rather than 4-bet.",
+        "tags": ["4-bet", "polarized", "range"],
+        "metadata": { "difficulty": "medium", "spotType": "4-bet" }
+      },
+      {
+        "id": "A6-Q4",
+        "stem": "In deep cash games (300bb+), which hand type gains the most value?",
+        "scenario": "Deep stacked play",
+        "choices": [
+          { "id": "a", "label": "High pairs (AA, KK)", "value": "0" },
+          { "id": "b", "label": "Suited connectors and suited aces", "value": "1" },
+          { "id": "c", "label": "Offsuit broadway", "value": "0" },
+          { "id": "d", "label": "Medium pairs", "value": "0" }
+        ],
+        "correctChoiceId": "b",
+        "explanation": "In deep games, suited connectors and suited aces gain value because you can extract more money when you hit big hands. The implied odds are higher - when you hit a straight or flush, stacks go in more often.",
+        "tags": ["depth", "suited connectors", "implied odds"],
+        "metadata": { "difficulty": "hard", "spotType": "preflop" }
+      }
+    ]
+  },
+  "A7-QUIZ": {
+    "activityId": "A7-QUIZ",
+    "activityType": "chapterQuiz",
+    "chapterId": "A7",
+    "title": "Preflop System Integration",
+    "description": "Test your understanding of building consistent preflop habits",
+    "questionCount": 4,
+    "questions": [
+      {
+        "id": "A7-Q1",
+        "stem": "What is the key to building preflop instincts?",
+        "scenario": "Developing consistent preflop habits",
+        "choices": [
+          { "id": "a", "label": "Memorizing every hand chart exactly", "value": "0" },
+          { "id": "b", "label": "Repetition and consistent review until decisions become automatic", "value": "1" },
+          { "id": "c", "label": "Only playing when you have a strong hand", "value": "0" },
+          { "id": "d", "label": "Avoiding difficult decisions by always folding", "value": "0" }
+        ],
+        "correctChoiceId": "b",
+        "explanation": "The key to building preflop instincts is repetition. Run drills, review spots, and practice until the decisions become automatic. This frees up mental energy for post-flop play and reduces tilt from preflop spots.",
+        "tags": ["habits", "practice", "instincts"],
+        "metadata": { "difficulty": "easy", "spotType": "habit" }
+      },
+      {
+        "id": "A7-Q2",
+        "stem": "How should you structure your daily preflop practice?",
+        "scenario": "Creating a training cadence",
+        "choices": [
+          { "id": "a", "label": "Only study when you have losing sessions", "value": "0" },
+          { "id": "b", "label": "15-20 minutes daily of focused repetition, not marathon study sessions", "value": "1" },
+          { "id": "c", "label": "Spend hours memorizing every possible scenario", "value": "0" },
+          { "id": "d", "label": "Watch videos instead of practicing hands", "value": "0" }
+        ],
+        "correctChoiceId": "b",
+        "explanation": "Daily short sessions (15-20 minutes) are more effective than occasional marathon sessions. Consistent, focused repetition builds muscle memory. The goal is automaticity, not perfection or exhaustive knowledge.",
+        "tags": ["training", "cadence", "habits"],
+        "metadata": { "difficulty": "easy", "spotType": "practice" }
+      },
+      {
+        "id": "A7-Q3",
+        "stem": "When reviewing your hands, what should you focus on?",
+        "scenario": "Effective hand review",
+        "choices": [
+          { "id": "a", "label": "Only big pots where you got stacked", "value": "0" },
+          { "id": "b", "label": "The decisions that were difficult - those are learning opportunities", "value": "1" },
+          { "id": "c", "label": "Hands where you won money", "value": "0" },
+          { "id": "d", "label": "What the opponent did wrong", "value": "0" }
+        ],
+        "correctChoiceId": "b",
+        "explanation": "Focus on difficult decisions - those are where the most learning happens. Easy decisions don't need review. When a spot was unclear, figure out the principle and add it to your system. This is how you improve.",
+        "tags": ["review", "learning", "analysis"],
+        "metadata": { "difficulty": "medium", "spotType": "review" }
+      },
+      {
+        "id": "A7-Q4",
+        "stem": "What is the ultimate goal of the preflop system?",
+        "scenario": "Understanding the big picture",
+        "choices": [
+          { "id": "a", "label": "Never lose money preflop", "value": "0" },
+          { "id": "b", "label": "Make preflop automatic so you can focus on post-flop play", "value": "1" },
+          { "id": "c", "label": "Win every hand you play", "value": "0" },
+          { "id": "d", "label": "Make the most aggressive plays possible", "value": "0" }
+        ],
+        "correctChoiceId": "b",
+        "explanation": "The goal of the preflop system is to make those decisions automatic, freeing mental energy for post-flop play. Poker is complex post-flop, so you want preflop to be a smooth, practiced process, not a constant struggle.",
+        "tags": ["system", "goals", "integration"],
+        "metadata": { "difficulty": "easy", "spotType": "philosophy" }
+      }
+    ]
+  }
+}

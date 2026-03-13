@@ -13,6 +13,8 @@ import D2 from './content/drills/D2-3bet-or-defend-lab.md?raw';
 import D3 from './content/drills/D3-bb-defense-speed-drill.md?raw';
 import D4 from './content/drills/D4-final-assessment.md?raw';
 
+import quizData from './content/quizzes.json';
+
 const app = document.querySelector('#app');
 
 const chapters = [
@@ -744,46 +746,170 @@ const renderChapterLesson = (chapter) => {
 
 const renderChapterQuiz = (chapter) => {
   const progress = loadProgress();
-  const complete = progress.completed[chapter.id];
+  const quizId = `${chapter.id}-QUIZ`;
+  const quiz = quizData[quizId];
+  
+  if (!quiz) {
+    return `
+      <section class="section">
+        <div class="section-header">
+          <p class="error">Quiz not found for ${chapter.id}</p>
+          <a class="btn ghost" href="#/course/chapters/${chapter.slug}">Back to Lesson</a>
+        </div>
+      </section>
+    `;
+  }
+
+  const activityProgress = progress.activities?.[quizId] || {};
+  const bestScore = activityProgress.bestScore;
+  const attemptCount = activityProgress.attemptCount || 0;
+  const completed = activityProgress.completed || false;
+  
   const index = chapters.findIndex((item) => item.id === chapter.id);
   const prev = index > 0 ? chapters[index - 1] : null;
   const next = index < chapters.length - 1 ? chapters[index + 1] : null;
 
+  // Check for submitted result in session storage
+  const sessionKey = `quiz_result_${quizId}`;
+  const resultData = sessionStorage.getItem(sessionKey);
+  
+  if (resultData) {
+    const result = JSON.parse(resultData);
+    return renderQuizResult(chapter, quiz, result, prev, next, completed, attemptCount, bestScore);
+  }
+
+  return renderQuizQuestions(chapter, quiz, prev, next, completed, attemptCount, bestScore);
+};
+
+const renderQuizQuestions = (chapter, quiz, prev, next, completed, attemptCount, bestScore) => {
   return `
     <section class="section">
       <div class="section-header">
         <p class="eyebrow">Chapter ${chapter.id} · Quiz</p>
-        <h1>Chapter Quiz: ${chapter.title}</h1>
+        <h1>Chapter Quiz: ${quiz.title}</h1>
         <p>Four-question checkpoint to confirm the lesson is locked.</p>
       </div>
-      <div class="grid two">
-        <div class="card">
-          <h3>Quiz brief</h3>
-          <ul>
-            <li>Questions: 4</li>
-            <li>Completion: submit to mark complete</li>
-            <li>Retake anytime to sharpen recall</li>
-          </ul>
-          <p>Quiz content will be wired into the next iteration. For now, use this checkpoint to log completion after review.</p>
-        </div>
-        <div class="card highlight">
-          <h3>Completion</h3>
-          <p>Status: <strong>${complete ? 'Complete' : 'Pending'}</strong></p>
-          <div class="card-actions">
-            <button class="btn ${complete ? 'ghost' : 'primary'}" data-complete="${chapter.id}">
-              ${complete ? 'Mark Incomplete' : 'Submit Quiz'}
-            </button>
-            <a class="btn ghost" href="#/course/chapters/${chapter.slug}">Back to Lesson</a>
-          </div>
+      
+      <div class="quiz-info">
+        <div class="quiz-meta">
+          <span><strong>Questions:</strong> 4</span>
+          <span><strong>Score needed:</strong> Any score passes</span>
+          <span><strong>Attempts:</strong> ${attemptCount}</span>
+          ${bestScore !== null && bestScore !== undefined ? `<span><strong>Best:</strong> ${bestScore}%</span>` : ''}
         </div>
       </div>
-      <div class="card" style="margin-top: 24px;">
-        <h3>Next steps</h3>
-        <p>Keep the chain moving.</p>
-        <div class="card-actions">
-          ${prev ? `<a class="btn ghost" href="#/course/chapters/${prev.slug}">Previous Chapter</a>` : ''}
-          ${next ? `<a class="btn primary" href="#/course/chapters/${next.slug}">Continue to ${next.id}</a>` : '<a class="btn primary" href="#/course/drills">Go to Drills</a>'}
+
+      <form id="quiz-form" data-quiz-id="${quiz.activityId}">
+        <div class="quiz-questions">
+          ${quiz.questions.map((q, idx) => `
+            <div class="question-card" data-question-id="${q.id}">
+              <div class="question-header">
+                <span class="question-number">Question ${idx + 1} of 4</span>
+                ${q.scenario ? `<div class="question-scenario">${q.scenario}</div>` : ''}
+              </div>
+              <div class="question-stem">${q.stem}</div>
+              <div class="choices">
+                ${q.choices.map(choice => `
+                  <label class="choice-item">
+                    <input type="radio" name="${q.id}" value="${choice.id}" />
+                    <span class="choice-label">${choice.label}</span>
+                  </label>
+                `).join('')}
+              </div>
+            </div>
+          `).join('')}
         </div>
+        
+        <div class="quiz-submit">
+          <button type="submit" class="btn primary" id="submit-quiz">Submit Quiz</button>
+        </div>
+      </form>
+
+      <div class="quiz-nav">
+        <a class="btn ghost" href="#/course/chapters/${chapter.slug}">Back to Lesson</a>
+        ${prev ? `<a class="btn ghost" href="#/course/chapters/${prev.slug}">Previous: ${prev.id}</a>` : ''}
+        ${next ? `<a class="btn ghost" href="#/course/chapters/${next.slug}">Next: ${next.id}</a>` : '<a class="btn ghost" href="#/course/drills">Go to Drills</a>'}
+      </div>
+    </section>
+  `;
+};
+
+const renderQuizResult = (chapter, quiz, result, prev, next, completed, attemptCount, bestScore) => {
+  const scorePercent = result.scorePercent;
+  const correctCount = result.correctCount;
+  const questionCount = result.questionCount;
+  
+  return `
+    <section class="section">
+      <div class="section-header">
+        <p class="eyebrow">Chapter ${chapter.id} · Quiz Complete</p>
+        <h1>Quiz Result: ${quiz.title}</h1>
+      </div>
+
+      <div class="quiz-result">
+        <div class="result-score ${scorePercent >= 75 ? 'good' : scorePercent >= 50 ? 'okay' : 'needs-work'}">
+          <div class="score-number">${scorePercent}%</div>
+          <div class="score-label">${correctCount}/${questionCount} correct</div>
+        </div>
+
+        <div class="result-stats">
+          <div class="stat">
+            <span class="stat-label">Status</span>
+            <span class="stat-value ${completed ? 'complete' : ''}">${completed ? 'Completed' : 'First attempt'}</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Attempts</span>
+            <span class="stat-value">${attemptCount}</span>
+          </div>
+          ${bestScore !== null && bestScore !== undefined ? `
+          <div class="stat">
+            <span class="stat-label">Best Score</span>
+            <span class="stat-value">${bestScore}%</span>
+          </div>
+          ` : ''}
+        </div>
+      </div>
+
+      <div class="quiz-review">
+        <h2>Review Your Answers</h2>
+        ${quiz.questions.map((q, idx) => {
+          const userAnswer = result.answers[q.id];
+          const isCorrect = userAnswer === q.correctChoiceId;
+          return `
+            <div class="review-card ${isCorrect ? 'correct' : 'incorrect'}">
+              <div class="review-header">
+                <span class="review-number">Question ${idx + 1}</span>
+                <span class="review-status ${isCorrect ? 'correct' : 'incorrect'}">
+                  ${isCorrect ? '✓ Correct' : '✗ Incorrect'}
+                </span>
+              </div>
+              <div class="review-stem">${q.stem}</div>
+              ${q.scenario ? `<div class="review-scenario">${q.scenario}</div>` : ''}
+              <div class="review-answers">
+                <div class="your-answer ${isCorrect ? 'correct' : 'incorrect'}">
+                  <strong>Your answer:</strong> ${q.choices.find(c => c.id === userAnswer)?.label || 'Not answered'}
+                </div>
+                ${!isCorrect ? `
+                  <div class="correct-answer">
+                    <strong>Correct answer:</strong> ${q.choices.find(c => c.id === q.correctChoiceId)?.label}
+                  </div>
+                ` : ''}
+              </div>
+              <div class="explanation">
+                <strong>Explanation:</strong> ${q.explanation}
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+
+      <div class="result-actions">
+        <button class="btn primary" data-retake-quiz="${quiz.activityId}" data-chapter="${chapter.slug}">
+          Retake Quiz
+        </button>
+        <a class="btn ghost" href="#/course/chapters/${chapter.slug}">Back to Lesson</a>
+        ${next ? `<a class="btn primary" href="#/course/chapters/${next.slug}">Next Chapter: ${next.id}</a>` : '<a class="btn primary" href="#/course/drills">Go to Drills</a>'}
+        <a class="btn ghost" href="#/course/progress">View Progress</a>
       </div>
     </section>
   `;
@@ -879,6 +1005,167 @@ const attachEventHandlers = () => {
       render();
     });
   });
+
+  // Quiz form submission
+  const quizForm = document.getElementById('quiz-form');
+  if (quizForm) {
+    quizForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      handleQuizSubmit(quizForm);
+    });
+  }
+
+  // Retake quiz buttons
+  document.querySelectorAll('[data-retake-quiz]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const quizId = button.dataset.retakeQuiz;
+      const chapterSlug = button.dataset.chapter;
+      sessionStorage.removeItem(`quiz_result_${quizId}`);
+      window.location.hash = `#/course/chapters/${chapterSlug}/quiz`;
+    });
+  });
+};
+
+const handleQuizSubmit = (form) => {
+  const quizId = form.dataset.quizId;
+  const quiz = quizData[quizId];
+  const chapterId = quiz.chapterId;
+  
+  // Collect answers
+  const answers = {};
+  let allAnswered = true;
+  
+  quiz.questions.forEach(q => {
+    const selected = form.querySelector(`input[name="${q.id}"]:checked`);
+    if (selected) {
+      answers[q.id] = selected.value;
+    } else {
+      allAnswered = false;
+    }
+  });
+
+  if (!allAnswered) {
+    alert('Please answer all questions before submitting.');
+    return;
+  }
+
+  // Calculate score
+  let correctCount = 0;
+  quiz.questions.forEach(q => {
+    if (answers[q.id] === q.correctChoiceId) {
+      correctCount++;
+    }
+  });
+
+  const scorePercent = Math.round((correctCount / quiz.questions.length) * 100);
+  const submittedAt = new Date().toISOString();
+  const attemptId = `att_${chapterId.toLowerCase()}_${Date.now()}`;
+
+  // Initialize progress structure if needed
+  const progress = loadProgress();
+  if (!progress.activities) progress.activities = {};
+  if (!progress.attempts) progress.attempts = {};
+  if (!progress.lessons) progress.lessons = {};
+
+  // Get current activity progress
+  const activityProgress = progress.activities[quizId] || {
+    activityId: quizId,
+    type: 'chapterQuiz',
+    parentId: chapterId,
+    attemptCount: 0,
+    completed: false
+  };
+
+  // Check if first completion
+  const isFirstCompletion = !activityProgress.completed;
+
+  // Update activity progress
+  activityProgress.latestAttemptAt = submittedAt;
+  activityProgress.attemptCount = (activityProgress.attemptCount || 0) + 1;
+  activityProgress.latestScore = scorePercent;
+  
+  if (!activityProgress.firstAttemptAt) {
+    activityProgress.firstAttemptAt = submittedAt;
+  }
+  
+  if (isFirstCompletion) {
+    activityProgress.completed = true;
+    activityProgress.completedAt = submittedAt;
+  }
+  
+  // Update best score
+  if (activityProgress.bestScore === undefined || scorePercent > activityProgress.bestScore) {
+    activityProgress.bestScore = scorePercent;
+    activityProgress.bestAttemptId = attemptId;
+  }
+  
+  activityProgress.latestAttemptId = attemptId;
+
+  // Save activity progress
+  progress.activities[quizId] = activityProgress;
+
+  // Mirror lesson completion
+  progress.lessons[chapterId] = progress.lessons[chapterId] || { lessonId: chapterId };
+  progress.lessons[chapterId].completed = activityProgress.completed;
+  progress.lessons[chapterId].completedAt = activityProgress.completedAt;
+  progress.lessons[chapterId].linkedQuizActivityId = quizId;
+
+  // Mark chapter complete in main progress
+  progress.completed[chapterId] = activityProgress.completed;
+
+  // Create attempt record
+  const attemptRecord = {
+    attemptId,
+    activityId: quizId,
+    activityType: 'chapterQuiz',
+    submittedAt,
+    completionReason: 'submitted',
+    answers,
+    correctCount,
+    questionCount: quiz.questions.length,
+    scorePercent
+  };
+
+  if (!progress.attempts[quizId]) {
+    progress.attempts[quizId] = [];
+  }
+  progress.attempts[quizId].push(attemptRecord);
+
+  // Keep only latest 5 attempts
+  if (progress.attempts[quizId].length > 5) {
+    progress.attempts[quizId] = progress.attempts[quizId].slice(-5);
+  }
+
+  // Recalculate summary progress
+  const completedChapterQuizzes = Object.values(progress.activities)
+    .filter(a => a.type === 'chapterQuiz' && a.completed).length;
+  const completedDrills = Object.values(progress.activities)
+    .filter(a => a.type === 'drill' && a.completed).length;
+  const totalCompletableActivities = 11;
+  
+  progress.summary = {
+    completedChapterQuizzes,
+    completedDrills,
+    totalCompletableActivities,
+    progressPercent: Math.round(((completedChapterQuizzes + completedDrills) / totalCompletableActivities) * 100),
+    lastActivityAt: submittedAt
+  };
+
+  saveProgress(progress);
+
+  // Store result for display
+  const resultData = {
+    scorePercent,
+    correctCount,
+    questionCount: quiz.questions.length,
+    answers,
+    attemptId,
+    submittedAt
+  };
+  sessionStorage.setItem(`quiz_result_${quizId}`, JSON.stringify(resultData));
+
+  // Re-render to show results
+  render();
 };
 
 const render = () => {
