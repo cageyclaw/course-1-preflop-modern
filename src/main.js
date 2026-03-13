@@ -148,6 +148,14 @@ const STORAGE_KEY = 'midnight-academy-progress';
 const defaultProgress = {
   completed: {},
   scores: {},
+  activities: {},
+  attempts: {},
+  lessons: {},
+  badges: {
+    earnedBadgeIds: [],
+    earnedAtByBadgeId: {},
+  },
+  summary: {},
 };
 
 const loadProgress = () => {
@@ -280,47 +288,293 @@ const markdownToHtml = (md) => {
     .replace(/\n{2,}/g, '\n');
 };
 
-const computeProgress = (progress) => {
-  const totalItems = chapters.length + drills.length;
-  const completedCount = [...chapters, ...drills].filter((item) => progress.completed[item.id]).length;
-  const percent = Math.round((completedCount / totalItems) * 100);
-  const chapterScore = chapters.filter((item) => progress.completed[item.id]).length * 10;
-  const drillScore = drills.reduce((sum, drill) => sum + (Number(progress.scores[drill.id]) || 0), 0);
-  const score = chapterScore + drillScore;
+const badgeDefinitions = [
+  {
+    id: 'FIRST_CHAPTER',
+    label: 'First Blood',
+    description: 'Complete any chapter quiz.',
+    category: 'milestone',
+  },
+  {
+    id: 'ALL_CHAPTERS',
+    label: 'Chapter Sweeper',
+    description: 'Complete all seven chapter quizzes.',
+    category: 'milestone',
+  },
+  {
+    id: 'FIRST_DRILL',
+    label: 'Into the Lab',
+    description: 'Complete your first drill.',
+    category: 'milestone',
+  },
+  {
+    id: 'ALL_DRILLS',
+    label: 'Drill Sergeant',
+    description: 'Complete all four drills.',
+    category: 'milestone',
+  },
+  {
+    id: 'COURSE_COMPLETE',
+    label: 'Course Cleared',
+    description: 'Complete all 11 assessments.',
+    category: 'milestone',
+  },
+  {
+    id: 'QUIZ_PERFECT_1',
+    label: 'Clean Sheet',
+    description: 'Score 100% on any chapter quiz.',
+    category: 'performance',
+  },
+  {
+    id: 'QUIZ_PERFECT_ALL',
+    label: 'Seven for Seven',
+    description: 'Score 100% on all chapter quizzes.',
+    category: 'performance',
+  },
+  {
+    id: 'DRILL_90',
+    label: 'Pressure Tested',
+    description: 'Score 90% or better on any drill.',
+    category: 'performance',
+  },
+  {
+    id: 'D4_PASS',
+    label: 'Final Table Ticket',
+    description: 'Pass the final assessment with 70%+.',
+    category: 'performance',
+  },
+  {
+    id: 'D4_MASTERY',
+    label: 'Preflop Mastery',
+    description: 'Score 85%+ on the final assessment.',
+    category: 'performance',
+  },
+  {
+    id: 'THREE_HOT',
+    label: 'Heater',
+    description: 'Post 80%+ on three attempts in a row.',
+    category: 'consistency',
+  },
+  {
+    id: 'COMEBACK',
+    label: 'Adjustment Made',
+    description: 'Improve a best score by 25 points or more.',
+    category: 'consistency',
+  },
+  {
+    id: 'STREAK_3',
+    label: 'Showing Up',
+    description: 'Submit scored attempts on three consecutive days.',
+    category: 'consistency',
+  },
+  {
+    id: 'D3_FINISH',
+    label: 'Beat the Clock',
+    description: 'Finish the D3 speed drill before time expires.',
+    category: 'speed',
+  },
+  {
+    id: 'D3_FAST_80',
+    label: 'Fast and Right',
+    description: 'Score 80%+ on D3 with sub-3s responses.',
+    category: 'speed',
+  },
+  {
+    id: 'D3_MASTER_SPEED',
+    label: 'BB Blitz',
+    description: 'Score 90%+ on D3 with sub-2s responses.',
+    category: 'speed',
+  },
+];
 
-  const badges = [
-    {
-      id: 'initiate',
-      label: 'Initiate',
-      description: 'Complete your first lesson',
-      unlocked: completedCount >= 1,
-    },
-    {
-      id: 'architect',
-      label: 'Range Architect',
-      description: 'Complete A1–A3',
-      unlocked: ['A1', 'A2', 'A3'].every((id) => progress.completed[id]),
-    },
-    {
-      id: 'defender',
-      label: 'Defense Specialist',
-      description: 'Complete A4 + D3',
-      unlocked: ['A4', 'D3'].every((id) => progress.completed[id]),
-    },
-    {
-      id: 'certified',
-      label: 'Midnight Certified',
-      description: 'Complete all chapters and drills',
-      unlocked: completedCount === totalItems,
-    },
-  ];
+const toDateKey = (isoString) => (isoString ? isoString.split('T')[0] : null);
+
+const getAllAttempts = (progress) =>
+  Object.values(progress.attempts || {}).flat().filter((attempt) => attempt?.submittedAt);
+
+const sortAttempts = (attempts) =>
+  [...attempts].sort((a, b) => new Date(a.submittedAt) - new Date(b.submittedAt));
+
+const computeAverage = (scores) => {
+  if (!scores.length) return 0;
+  const total = scores.reduce((sum, score) => sum + score, 0);
+  return Math.round(total / scores.length);
+};
+
+const computeStreakCount = (attempts) => {
+  const dateKeys = Array.from(
+    new Set(attempts.map((attempt) => toDateKey(attempt.submittedAt)).filter(Boolean))
+  ).sort();
+
+  if (!dateKeys.length) return 0;
+
+  let streak = 1;
+  let cursor = new Date(dateKeys[dateKeys.length - 1]);
+  for (let i = dateKeys.length - 2; i >= 0; i -= 1) {
+    const candidate = new Date(dateKeys[i]);
+    const diffDays = (cursor - candidate) / (1000 * 60 * 60 * 24);
+    if (diffDays === 1) {
+      streak += 1;
+      cursor = candidate;
+    } else if (diffDays > 1) {
+      break;
+    }
+  }
+
+  return streak;
+};
+
+const computeSummary = (progress) => {
+  const activities = progress.activities || {};
+  const chapterQuizActivities = Object.values(activities).filter(
+    (activity) => activity.type === 'chapterQuiz'
+  );
+  const drillActivities = Object.values(activities).filter((activity) => activity.type === 'drill');
+
+  const completedChapterQuizzes = chapterQuizActivities.filter((activity) => activity.completed).length;
+  const completedDrills = drillActivities.filter((activity) => activity.completed).length;
+  const totalCompletableActivities = chapters.length + drills.length;
+  const progressPercent = Math.round(
+    ((completedChapterQuizzes + completedDrills) / totalCompletableActivities) * 100
+  );
+
+  const averageChapterQuizScore = computeAverage(
+    chapterQuizActivities
+      .filter((activity) => activity.completed && activity.bestScore !== undefined)
+      .map((activity) => activity.bestScore)
+  );
+  const averageDrillScore = computeAverage(
+    drillActivities
+      .filter((activity) => activity.completed && activity.bestScore !== undefined)
+      .map((activity) => activity.bestScore)
+  );
+
+  const finalAssessment = activities.D4;
+  const finalAssessmentScore = finalAssessment?.bestScore ?? null;
+  const passedFinalAssessment = finalAssessment?.passed ?? false;
+
+  const attempts = sortAttempts(getAllAttempts(progress));
+  const lastActivityAt = attempts.length ? attempts[attempts.length - 1].submittedAt : null;
+  const streakCount = computeStreakCount(attempts);
 
   return {
-    totalItems,
-    completedCount,
-    percent,
-    score,
+    completedChapterQuizzes,
+    completedDrills,
+    totalCompletableActivities,
+    progressPercent,
+    averageChapterQuizScore,
+    averageDrillScore,
+    finalAssessmentScore,
+    passedFinalAssessment,
+    lastActivityAt,
+    streakCount,
+  };
+};
+
+const updateSummary = (progress) => {
+  const summary = computeSummary(progress);
+  progress.summary = summary;
+  return summary;
+};
+
+const updateBadges = (progress, { latestAttempt, bestScoreImprovedBy } = {}) => {
+  const badgeProgress = progress.badges || { earnedBadgeIds: [], earnedAtByBadgeId: {} };
+  const earned = new Set(badgeProgress.earnedBadgeIds || []);
+  const earnedAtByBadgeId = badgeProgress.earnedAtByBadgeId || {};
+  const summary = computeSummary(progress);
+
+  const attempts = sortAttempts(getAllAttempts(progress));
+  const chapterQuizIds = chapters.map((chapter) => `${chapter.id}-QUIZ`);
+  const drillIds = drills.map((drill) => drill.id);
+
+  const activities = progress.activities || {};
+  const anyChapterPerfect = chapterQuizIds.some((id) => activities[id]?.bestScore === 100);
+  const allChapterPerfect = chapterQuizIds.every((id) => activities[id]?.bestScore === 100);
+  const anyDrill90 = drillIds.some((id) => (activities[id]?.bestScore ?? 0) >= 90);
+
+  const d4Activity = activities.D4;
+  const d4Pass = d4Activity?.passed || false;
+  const d4Mastery = (d4Activity?.bestScore ?? 0) >= 85;
+
+  const d3Attempts = attempts.filter((attempt) => attempt.activityId === 'D3');
+  const d3Finish = d3Attempts.some((attempt) => attempt.completionReason !== 'timerExpired');
+  const d3Fast80 = d3Attempts.some(
+    (attempt) =>
+      attempt.scorePercent >= 80 && (attempt.metrics?.averageResponseMs ?? Infinity) <= 3000
+  );
+  const d3MasterSpeed = d3Attempts.some(
+    (attempt) =>
+      attempt.scorePercent >= 90 && (attempt.metrics?.averageResponseMs ?? Infinity) <= 2000
+  );
+
+  let hotStreak = 0;
+  let hasThreeHot = false;
+  attempts.forEach((attempt) => {
+    if ((attempt.scorePercent ?? 0) >= 80) {
+      hotStreak += 1;
+      if (hotStreak >= 3) {
+        hasThreeHot = true;
+      }
+    } else {
+      hotStreak = 0;
+    }
+  });
+
+  const maybeEarn = (badgeId, condition, timestamp) => {
+    if (!condition || earned.has(badgeId)) return;
+    earned.add(badgeId);
+    earnedAtByBadgeId[badgeId] = timestamp || new Date().toISOString();
+  };
+
+  const awardTime = latestAttempt?.submittedAt;
+
+  maybeEarn('FIRST_CHAPTER', summary.completedChapterQuizzes >= 1, awardTime);
+  maybeEarn('ALL_CHAPTERS', summary.completedChapterQuizzes === 7, awardTime);
+  maybeEarn('FIRST_DRILL', summary.completedDrills >= 1, awardTime);
+  maybeEarn('ALL_DRILLS', summary.completedDrills === 4, awardTime);
+  maybeEarn('COURSE_COMPLETE', summary.progressPercent === 100, awardTime);
+  maybeEarn('QUIZ_PERFECT_1', anyChapterPerfect, awardTime);
+  maybeEarn('QUIZ_PERFECT_ALL', allChapterPerfect, awardTime);
+  maybeEarn('DRILL_90', anyDrill90, awardTime);
+  maybeEarn('D4_PASS', d4Pass, d4Activity?.passedAt || awardTime);
+  maybeEarn('D4_MASTERY', d4Mastery, awardTime);
+  maybeEarn('THREE_HOT', hasThreeHot, awardTime);
+  maybeEarn('COMEBACK', (bestScoreImprovedBy ?? 0) >= 25, awardTime);
+  maybeEarn('STREAK_3', summary.streakCount >= 3, awardTime);
+  maybeEarn('D3_FINISH', d3Finish, awardTime);
+  maybeEarn('D3_FAST_80', d3Fast80, awardTime);
+  maybeEarn('D3_MASTER_SPEED', d3MasterSpeed, awardTime);
+
+  progress.badges = {
+    earnedBadgeIds: Array.from(earned),
+    earnedAtByBadgeId,
+  };
+};
+
+const computeProgress = (progress) => {
+  const summary = computeSummary(progress);
+  const activities = progress.activities || {};
+  const completedActivities = Object.values(activities).filter(
+    (activity) => activity.completed && activity.bestScore !== undefined
+  );
+  const overallScore = computeAverage(completedActivities.map((activity) => activity.bestScore));
+
+  const badgeProgress = progress.badges || { earnedBadgeIds: [], earnedAtByBadgeId: {} };
+  const earnedBadgeIds = new Set(badgeProgress.earnedBadgeIds || []);
+
+  const badges = badgeDefinitions.map((badge) => ({
+    ...badge,
+    unlocked: earnedBadgeIds.has(badge.id),
+    earnedAt: badgeProgress.earnedAtByBadgeId?.[badge.id] || null,
+  }));
+
+  return {
+    totalItems: summary.totalCompletableActivities,
+    completedCount: summary.completedChapterQuizzes + summary.completedDrills,
+    percent: summary.progressPercent,
+    score: overallScore,
     badges,
+    summary,
   };
 };
 
@@ -336,6 +590,9 @@ const getDrillBySlug = (slug) => drills.find((drill) => drill.slug === slug);
 
 const renderLayout = (content, route) => {
   const progress = loadProgress();
+  updateSummary(progress);
+  updateBadges(progress);
+  saveProgress(progress);
   const stats = computeProgress(progress);
   const nextItem = getNextItem(progress);
 
@@ -362,7 +619,7 @@ const renderLayout = (content, route) => {
             <div class="stat-value">${stats.percent}%</div>
           </div>
           <div>
-            <div class="stat-label">Score</div>
+            <div class="stat-label">Accuracy</div>
             <div class="stat-value">${stats.score}</div>
           </div>
         </div>
@@ -409,7 +666,7 @@ const renderCourseOverview = () => {
             <span class="meta-value">${stats.completedCount}/${stats.totalItems} modules</span>
           </div>
           <div>
-            <span class="meta-label">Academy Score</span>
+            <span class="meta-label">Accuracy Score</span>
             <span class="meta-value">${stats.score}</span>
           </div>
           <div>
@@ -618,10 +875,10 @@ const renderProgressPage = () => {
           </div>
         </div>
         <div class="card highlight">
-          <h3>Academy Score</h3>
-          <p>Total score blends chapter completion and drill performance.</p>
+          <h3>Accuracy Score</h3>
+          <p>Average of best scores across completed quizzes and drills.</p>
           <div class="score-display">${stats.score}</div>
-          <div class="score-subtext">Keep drilling to raise the average.</div>
+          <div class="score-subtext">Retake drills to improve the average.</div>
         </div>
       </div>
     </section>
@@ -1351,6 +1608,9 @@ const handleQuizSubmit = (form) => {
     completed: false
   };
 
+  const previousBestScore = activityProgress.bestScore;
+  let bestScoreImprovedBy = null;
+
   // Check if first completion
   const isFirstCompletion = !activityProgress.completed;
 
@@ -1370,6 +1630,9 @@ const handleQuizSubmit = (form) => {
   
   // Update best score
   if (activityProgress.bestScore === undefined || scorePercent > activityProgress.bestScore) {
+    if (previousBestScore !== undefined && scorePercent > previousBestScore) {
+      bestScoreImprovedBy = scorePercent - previousBestScore;
+    }
     activityProgress.bestScore = scorePercent;
     activityProgress.bestAttemptId = attemptId;
   }
@@ -1411,20 +1674,8 @@ const handleQuizSubmit = (form) => {
     progress.attempts[quizId] = progress.attempts[quizId].slice(-5);
   }
 
-  // Recalculate summary progress
-  const completedChapterQuizzes = Object.values(progress.activities)
-    .filter(a => a.type === 'chapterQuiz' && a.completed).length;
-  const completedDrills = Object.values(progress.activities)
-    .filter(a => a.type === 'drill' && a.completed).length;
-  const totalCompletableActivities = 11;
-  
-  progress.summary = {
-    completedChapterQuizzes,
-    completedDrills,
-    totalCompletableActivities,
-    progressPercent: Math.round(((completedChapterQuizzes + completedDrills) / totalCompletableActivities) * 100),
-    lastActivityAt: submittedAt
-  };
+  updateSummary(progress);
+  updateBadges(progress, { latestAttempt: attemptRecord, bestScoreImprovedBy });
 
   saveProgress(progress);
 
@@ -1490,6 +1741,9 @@ const handleDrillSubmit = (form, { completionReason = 'finished' } = {}) => {
     completed: false
   };
 
+  const previousBestScore = activityProgress.bestScore;
+  let bestScoreImprovedBy = null;
+
   const isFirstCompletion = !activityProgress.completed;
   activityProgress.latestAttemptAt = submittedAt;
   activityProgress.attemptCount = (activityProgress.attemptCount || 0) + 1;
@@ -1506,6 +1760,9 @@ const handleDrillSubmit = (form, { completionReason = 'finished' } = {}) => {
   }
 
   if (activityProgress.bestScore === undefined || scorePercent > activityProgress.bestScore) {
+    if (previousBestScore !== undefined && scorePercent > previousBestScore) {
+      bestScoreImprovedBy = scorePercent - previousBestScore;
+    }
     activityProgress.bestScore = scorePercent;
     activityProgress.bestAttemptId = attemptId;
   }
@@ -1533,16 +1790,17 @@ const handleDrillSubmit = (form, { completionReason = 'finished' } = {}) => {
 
   activityProgress.latestMetrics = Object.keys(metrics).length ? metrics : undefined;
   if (activityProgress.bestScore === scorePercent && Object.keys(metrics).length) {
-    activityProgress.bestMetrics = metrics;
+    const previousBestMetrics = activityProgress.bestMetrics;
+    const hasFasterAverage =
+      previousBestMetrics?.averageResponseMs === undefined ||
+      metrics.averageResponseMs < previousBestMetrics.averageResponseMs;
+    if (!previousBestMetrics || hasFasterAverage) {
+      activityProgress.bestMetrics = metrics;
+    }
   }
 
   progress.activities[drillId] = activityProgress;
   progress.completed[drillId] = true;
-
-  const drillMeta = drills.find((item) => item.id === drillId);
-  if (drillMeta) {
-    progress.scores[drillId] = Math.round((scorePercent / 100) * drillMeta.points);
-  }
 
   const attemptRecord = {
     attemptId,
@@ -1567,19 +1825,8 @@ const handleDrillSubmit = (form, { completionReason = 'finished' } = {}) => {
     progress.attempts[drillId] = progress.attempts[drillId].slice(-5);
   }
 
-  const completedChapterQuizzes = Object.values(progress.activities)
-    .filter(a => a.type === 'chapterQuiz' && a.completed).length;
-  const completedDrills = Object.values(progress.activities)
-    .filter(a => a.type === 'drill' && a.completed).length;
-  const totalCompletableActivities = 11;
-
-  progress.summary = {
-    completedChapterQuizzes,
-    completedDrills,
-    totalCompletableActivities,
-    progressPercent: Math.round(((completedChapterQuizzes + completedDrills) / totalCompletableActivities) * 100),
-    lastActivityAt: submittedAt
-  };
+  updateSummary(progress);
+  updateBadges(progress, { latestAttempt: attemptRecord, bestScoreImprovedBy });
 
   saveProgress(progress);
 
