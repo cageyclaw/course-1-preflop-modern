@@ -30,8 +30,9 @@ const chapters = [
   },
   {
     id: 'A2',
-    slug: 'a2-opening-ranges-and-position',
-    title: 'Opening Ranges and Position',
+    slug: 'a2-3-bet-strategy',
+    aliases: ['a2-opening-ranges-and-position'],
+    title: '3-Bet Strategy',
     subtitle: 'Pressure, value, and range shape',
     duration: '32 min',
     focus: 'Aggression framework',
@@ -40,8 +41,9 @@ const chapters = [
   },
   {
     id: 'A3',
-    slug: 'a3-three-betting-and-facing-pressure',
-    title: 'Three-Betting and Facing Pressure',
+    slug: 'a3-facing-a-3-bet',
+    aliases: ['a3-three-betting-and-facing-pressure'],
+    title: 'Facing a 3-Bet',
     subtitle: 'Defend with structure, not vibes',
     duration: '30 min',
     focus: 'Defense buckets',
@@ -604,7 +606,8 @@ const getNextItem = (progress) => {
   return nextDrill ? { type: 'drill', ...nextDrill } : null;
 };
 
-const getChapterBySlug = (slug) => chapters.find((chapter) => chapter.slug === slug);
+const getChapterBySlug = (slug) =>
+  chapters.find((chapter) => chapter.slug === slug || chapter.aliases?.includes(slug));
 const getDrillBySlug = (slug) => drills.find((drill) => drill.slug === slug);
 
 const renderLayout = (content, route) => {
